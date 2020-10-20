@@ -7,7 +7,7 @@ title: Proposal
 
 | Input      | Output |
 | ----------- | ----------- |
-| - Dictionary of different rewards      | - Nether Portal       |
+| - Dictionary of rewards       | - Nether Portal       |
 | - Mincraft Environment (XML)   |         
 - Size/Grid of Nether Portal|
 
