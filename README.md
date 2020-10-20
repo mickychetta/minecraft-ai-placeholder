@@ -4,7 +4,7 @@
    
 <br>
 
-Website: https://github.com/mickychetta/nether-portal-crafter
+Website: https://mickychetta.github.io/nether-portal-crafter/
 
 
 Reports:
