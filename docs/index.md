@@ -16,10 +16,3 @@ Source code: https://github.com/mickychetta/nether-portal-crafter
 
 
 
-Reports:
-
-- [Proposal](proposal.html)
-- [Status](status.html)
-- [Final](final.html)
-
-
