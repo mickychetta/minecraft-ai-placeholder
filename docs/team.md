@@ -1,15 +1,16 @@
 ---
 layout: default
-title: Team
+title:  Team
 ---
-# Team
 
-## Micky Chettanapanich
-***UCI Net ID***: mchettan
+# {{ page.title }}
 
-## Lily Pham
-***UCI Net ID***: lilyp3
 
-## Eric Hsueh
-***UCI Net ID***: ehsueh1
+## USER 1
+***UCI Net ID***: ucinetid1
 
+## USER 2
+***UCI Net ID***: ucinetid2
+
+## USER 3
+***UCI Net ID***: ucinetid3
