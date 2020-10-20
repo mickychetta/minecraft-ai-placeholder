@@ -13,19 +13,15 @@ Appointment: October 23rd, 1:00pm
 | - Mincraft Environment (XML)   |         
 - Size/Grid of Nether Portal|
 
-<br>
-
-![q-learning](./images/portal-grid.jpg)
 
 
- <br>
+
 
 ## AI/ML Algorithm
 The Nether Portal Creator will use Reinforcement Learning and Q-Learning to determine how good an action is at a particular state. It will determine how good the blocks are to be mined and the placement of blocks.
 
 <br>
 
-![q-learning](./images/q-learning.png)
  
 <br>
 
