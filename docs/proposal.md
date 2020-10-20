@@ -14,6 +14,7 @@ Appointment: October 23rd, 1:00pm
 - Size/Grid of Nether Portal|
 
 
+![q-learning](./images/portal-grid.jpg)
 
 
 
@@ -22,6 +23,7 @@ The Nether Portal Creator will use Reinforcement Learning and Q-Learning to dete
 
 <br>
 
+![q-learning](./images/q-learning.png)
  
 <br>
 
