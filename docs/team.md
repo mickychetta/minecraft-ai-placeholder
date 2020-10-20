@@ -1,9 +1,8 @@
 ---
 layout: default
-title:  Team
+title:  Team Detail
 ---
-
-# Team
+## Team
 
 ## Micky Chettanapanich
 ***UCI Net ID***: mchettan
