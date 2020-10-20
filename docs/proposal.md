@@ -19,7 +19,7 @@ title: Proposal
  <br>
 
 ## AI/ML Algorithm
-The Nether Portal Creator will use Reinforcement Learning and Q-Learning to determine how good to an action at a particular state. It will determine how good the block is to mine and the placement of blocks.
+The Nether Portal Creator will use Reinforcement Learning and Q-Learning to determine how good an action is at a particular state. It will determine how good the blocks are to be mined and the placement of blocks.
 
 <br>
 
