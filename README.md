@@ -1,8 +1,7 @@
-![logo](docs/images/logo.png)
-![portal](docs/images/portal.png)
+![logo](docs/images/speed-miners.png)
+![portal](docs/images/background.jpg)
 
-The Nether Portal Creator will use Reinforcement Learning to craft a Nether Portal in Malmo (Minecraft). The Minecraft character Steve will spawn with the necessary tools (Diamond Pickaxe & Flint and Steel) to mine Obsidian blocks and craft a Nether Portal.  We will create an environment filled with Lava, Water, Stone, Obsidian, Iron Ores, and Gravel. Steve will need to explore the cave and mine different types of blocks until he acquires 14 Obsidian blocks. After obtaining the necessary blocks, Steven will need to place the blocks accordingly and light it with Flint and Steel to form the Nether Portal.
-   
+Speed Miners will use Reinforcement Learning to gather as many resources in Malmo (Minecraft). The Minecraft character Steve will spawn with a diamond pickaxe to mine and gather as many coal, lapiz lazuli, redstone, emerald, iron, gold, and diamond within the map.  We will create an environment filled with Lava, Stone, Coal Ores, Lapiz Lazuli Ores, Redstone Ores, Emerald Ores, Iron Ores, Gold Ores, and Diamonds Ores. Steve will need to explore the map and mine different types of blocks until he is trained to mine efficiently. 
 
 Website: https://mickychetta.github.io/nether-portal-crafter/
 
