@@ -3,14 +3,14 @@ layout: default
 title: Home
 ---
 
-![logo](./images/logo.png)
-<img src="./images/portal.png" alt="portal" width="800">
+![logo](./images/speed-miners.png)
+<img src="./images/background.jpg" alt="portal" width="800">
 
-### The Nether Portal Creator will use Reinforcement Learning to craft a Nether Portal in Malmo (Minecraft). 
+### Speed Miners will use Q-Learning to collect the maximum amount of resources within a grid in Malmo (Minecraft). 
 
 <br>
 
-Source code: https://github.com/mickychetta/nether-portal-crafter
+Source code: https://github.com/mickychetta/speed-miners
 
 
 
