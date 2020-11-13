@@ -20,9 +20,9 @@ from torch.utils.data import Dataset, DataLoader
 
 
 # Hyperparameters
-SIZE = 50
+SIZE = 5
 REWARD_DENSITY = .1
-PENALTY_DENSITY = .02
+PENALTY_DENSITY = .05
 OBS_SIZE = 5
 MAX_EPISODE_STEPS = 100
 MAX_GLOBAL_STEPS = 10000
@@ -45,11 +45,6 @@ ACTION_DICT = {
 
 # Q-Value Network
 class QNetwork(nn.Module):
-    #------------------------------------
-    #
-    #   TODO: Modify network architecture
-    #
-    #-------------------------------------
 
     def __init__(self, obs_size, action_size, hidden_size=100):
         super().__init__()
@@ -75,32 +70,32 @@ class QNetwork(nn.Module):
 
 
 def GetMissionXML():
-    #------------------------------------
-    #
-    #   TODO: Spawn diamonds
-    #   TODO: Spawn lava
-    #   TODO: Add diamond reward
-    #   TODO: Add lava negative reward
-    #
-    #-------------------------------------
-
-    diamonds = ""
-    for _ in range(int(((SIZE*2)**2)*REWARD_DENSITY)):
+    xml = ""
+    for _ in range(int(MAX_EPISODE_STEPS * REWARD_DENSITY)):
         x = random.randint(-SIZE, SIZE)
         z = random.randint(-SIZE, SIZE)
-        diamonds += "<DrawBlock x='{}'  y='2' z='{}' type='diamond_ore' />".format(x, z)
+        xml += "<DrawBlock x='{}'  y='2' z='{}' type='diamond_ore' />".format(x, z)
 
-    lava = ""
-    for _ in range(int(((SIZE*2)**2)*PENALTY_DENSITY)):
+    for _ in range(int(MAX_EPISODE_STEPS * REWARD_DENSITY)):
         x = random.randint(-SIZE, SIZE)
         z = random.randint(-SIZE, SIZE)
-        lava += "<DrawBlock x='{}' y='1' z='{}' type='flowing_lava'/>".format(x, z)
+        xml += "<DrawBlock x='{}'  y='2' z='{}' type='iron_ore' />".format(x, z)
+
+    for _ in range(int(MAX_EPISODE_STEPS * REWARD_DENSITY)):
+        x = random.randint(-SIZE, SIZE)
+        z = random.randint(-SIZE, SIZE)
+        xml += "<DrawBlock x='{}'  y='2' z='{}' type='gold_ore' />".format(x, z)
     
+    for i in range(int(MAX_EPISODE_STEPS * PENALTY_DENSITY)):
+        x = random.randint(-SIZE, SIZE)
+        z = random.randint(-SIZE, SIZE)
+        xml += "<DrawBlock x='{}' y='1' z='{}' type='flowing_lava'/>".format(x, z)
+
     return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
             <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
                 <About>
-                    <Summary>Diamond Collector</Summary>
+                    <Summary>Resource Gatherer</Summary>
                 </About>
 
                 <ServerSection>
@@ -112,11 +107,15 @@ def GetMissionXML():
                         <Weather>clear</Weather>
                     </ServerInitialConditions>
                     <ServerHandlers>
-                        <FlatWorldGenerator generatorString="3;7,2;1;"/>
+                        <FlatWorldGenerator generatorString="3;7,2;21;"/>
                         <DrawingDecorator>''' + \
                             "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='air'/>".format(-SIZE, SIZE, -SIZE, SIZE) + \
                             "<DrawCuboid x1='{}' x2='{}' y1='1' y2='1' z1='{}' z2='{}' type='stone'/>".format(-SIZE, SIZE, -SIZE, SIZE) + \
-                            diamonds + lava + \
+                            "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(-SIZE-1, SIZE+1, -SIZE-1, -SIZE-1) + \
+                            "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(-SIZE-1, SIZE+1, SIZE+1, SIZE+1) + \
+                            "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(-SIZE-1, -SIZE-1, -SIZE-1, SIZE+1) + \
+                            "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(SIZE+1, SIZE+1, -SIZE-1, SIZE+1) + \
+                            xml + \
                             '''<DrawBlock x='0'  y='2' z='0' type='air' />
                             <DrawBlock x='0'  y='1' z='0' type='stone' />
                         </DrawingDecorator>
@@ -125,7 +124,7 @@ def GetMissionXML():
                 </ServerSection>
 
                 <AgentSection mode="Survival">
-                    <Name>CS175DiamondCollector</Name>
+                    <Name>SpeedMiner</Name>
                     <AgentStart>
                         <Placement x="0.5" y="2" z="0.5" pitch="45" yaw="0"/>
                         <Inventory>
@@ -142,11 +141,10 @@ def GetMissionXML():
                             </Grid>
                         </ObservationFromGrid>
                         <RewardForCollectingItem>
-                            <Item type="diamond" reward="1"/>
+                            <Item type="diamond" reward="1"/> 
+                            <Item type="gold_ore" reward="1"/> 
+                            <Item type="iron_ore" reward="1"/> 
                         </RewardForCollectingItem>
-                        <RewardForTouchingBlockType>
-                            <Block type="flowing_lava" reward="-1" />
-                        </RewardForTouchingBlockType>
                         <AgentQuitFromReachingCommandQuota total="'''+str(MAX_EPISODE_STEPS)+'''" />
                     </AgentHandlers>
                 </AgentSection>
@@ -165,13 +163,6 @@ def get_action(obs, q_network, epsilon, allow_break_action):
     Returns:
         action (int): chosen action [0, action_size)
     """
-    #------------------------------------
-    #
-    #   TODO: Implement e-greedy policy
-    #
-    #-------------------------------------
-
-    
 
     # Prevent computation graph from being calculated
     with torch.no_grad():
