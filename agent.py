@@ -1,452 +1,317 @@
+# Rllib docs: https://docs.ray.io/en/latest/rllib.html
+
 try:
     from malmo import MalmoPython
 except:
     import MalmoPython
 
-import os
 import sys
 import time
 import json
-import random
-from tqdm import tqdm
-from collections import deque
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 import numpy as np
 from numpy.random import randint
 
-import torch
-import torch.nn as nn
-from torch.utils.data import Dataset, DataLoader
+import gym, ray
+from gym.spaces import Discrete, Box
+from ray.rllib.agents import ppo
 
 
-# Hyperparameters
-SIZE = 5
-REWARD_DENSITY = .1
-PENALTY_DENSITY = .05
-OBS_SIZE = 5
-MAX_EPISODE_STEPS = 100
-MAX_GLOBAL_STEPS = 10000
-REPLAY_BUFFER_SIZE = 10000
-EPSILON_DECAY = .999
-MIN_EPSILON = .1
-BATCH_SIZE = 128
-GAMMA = .9
-TARGET_UPDATE = 100
-LEARNING_RATE = 1e-4
-START_TRAINING = 500
-LEARN_FREQUENCY = 1
-ACTION_DICT = {
-    0: 'move 1',  # Move one block forward
-    1: 'turn 1',  # Turn 90 degrees to the right
-    2: 'turn -1',  # Turn 90 degrees to the left
-    3: 'attack 1'  # Destroy block
-}
+class ResourceCollector(gym.Env):
 
+    def __init__(self, env_config):  
+        # Static Parameters
+        self.size = 10
+        self.reward_density = .1
+        self.penalty_density = .02
+        self.obs_size = 5
+        self.max_episode_steps = 100
+        self.log_frequency = 10
+        self.action_dict = {
+            0: 'move 1',  # Move one block forward
+            1: 'turn 1',  # Turn 90 degrees to the right
+            2: 'turn -1',  # Turn 90 degrees to the left
+            3: 'attack 1'  # Destroy block
+        }
 
-# Q-Value Network
-class QNetwork(nn.Module):
+        # Rllib Parameters
+        self.action_space = Discrete(len(self.action_dict))
+        self.observation_space = Box(0, 1, shape=(np.prod([2, self.obs_size, self.obs_size]), ), dtype=np.int32)
 
-    def __init__(self, obs_size, action_size, hidden_size=100):
-        super().__init__()
-        self.net = nn.Sequential(nn.Linear(np.prod(obs_size), hidden_size),
-                                 nn.LeakyReLU(),
-                                 nn.Linear(hidden_size, hidden_size),
-                                 nn.LeakyReLU(),
-                                 nn.Linear(hidden_size, action_size))
-        
-    def forward(self, obs):
-        """
-        Estimate q-values given obs
-
-        Args:
-            obs (tensor): current obs, size (batch x obs_size)
-
-        Returns:
-            q-values (tensor): estimated q-values, size (batch x action_size)
-        """
-        batch_size = obs.shape[0]
-        obs_flat = obs.view(batch_size, -1)
-        return self.net(obs_flat)
-
-
-def GetMissionXML():
-    xml = ""
-    for _ in range(int(MAX_EPISODE_STEPS * REWARD_DENSITY)):
-        x = random.randint(-SIZE, SIZE)
-        z = random.randint(-SIZE, SIZE)
-        xml += "<DrawBlock x='{}'  y='2' z='{}' type='diamond_ore' />".format(x, z)
-
-    for _ in range(int(MAX_EPISODE_STEPS * REWARD_DENSITY)):
-        x = random.randint(-SIZE, SIZE)
-        z = random.randint(-SIZE, SIZE)
-        xml += "<DrawBlock x='{}'  y='2' z='{}' type='iron_ore' />".format(x, z)
-
-    for _ in range(int(MAX_EPISODE_STEPS * REWARD_DENSITY)):
-        x = random.randint(-SIZE, SIZE)
-        z = random.randint(-SIZE, SIZE)
-        xml += "<DrawBlock x='{}'  y='2' z='{}' type='gold_ore' />".format(x, z)
-    
-    for i in range(int(MAX_EPISODE_STEPS * PENALTY_DENSITY)):
-        x = random.randint(-SIZE, SIZE)
-        z = random.randint(-SIZE, SIZE)
-        xml += "<DrawBlock x='{}' y='1' z='{}' type='flowing_lava'/>".format(x, z)
-
-    return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-            <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-
-                <About>
-                    <Summary>Resource Gatherer</Summary>
-                </About>
-
-                <ServerSection>
-                    <ServerInitialConditions>
-                        <Time>
-                            <StartTime>12000</StartTime>
-                            <AllowPassageOfTime>true</AllowPassageOfTime>
-                        </Time>
-                        <Weather>clear</Weather>
-                    </ServerInitialConditions>
-                    <ServerHandlers>
-                        <FlatWorldGenerator generatorString="3;7,2;21;"/>
-                        <DrawingDecorator>''' + \
-                            "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='air'/>".format(-SIZE, SIZE, -SIZE, SIZE) + \
-                            "<DrawCuboid x1='{}' x2='{}' y1='1' y2='1' z1='{}' z2='{}' type='stone'/>".format(-SIZE, SIZE, -SIZE, SIZE) + \
-                            "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(-SIZE-1, SIZE+1, -SIZE-1, -SIZE-1) + \
-                            "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(-SIZE-1, SIZE+1, SIZE+1, SIZE+1) + \
-                            "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(-SIZE-1, -SIZE-1, -SIZE-1, SIZE+1) + \
-                            "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(SIZE+1, SIZE+1, -SIZE-1, SIZE+1) + \
-                            xml + \
-                            '''<DrawBlock x='0'  y='2' z='0' type='air' />
-                            <DrawBlock x='0'  y='1' z='0' type='stone' />
-                        </DrawingDecorator>
-                        <ServerQuitWhenAnyAgentFinishes/>
-                    </ServerHandlers>
-                </ServerSection>
-
-                <AgentSection mode="Survival">
-                    <Name>SpeedMiner</Name>
-                    <AgentStart>
-                        <Placement x="0.5" y="2" z="0.5" pitch="45" yaw="0"/>
-                        <Inventory>
-                            <InventoryItem slot="0" type="diamond_pickaxe"/>
-                        </Inventory>
-                    </AgentStart>
-                    <AgentHandlers>
-                        <DiscreteMovementCommands/>
-                        <ObservationFromFullStats/>
-                        <ObservationFromGrid>
-                            <Grid name="floorAll">
-                                <min x="-'''+str(int(OBS_SIZE/2))+'''" y="-1" z="-'''+str(int(OBS_SIZE/2))+'''"/>
-                                <max x="'''+str(int(OBS_SIZE/2))+'''" y="0" z="'''+str(int(OBS_SIZE/2))+'''"/>
-                            </Grid>
-                        </ObservationFromGrid>
-                        <RewardForCollectingItem>
-                            <Item type="diamond" reward="1"/> 
-                            <Item type="gold_ore" reward="1"/> 
-                            <Item type="iron_ore" reward="1"/> 
-                        </RewardForCollectingItem>
-                        <AgentQuitFromReachingCommandQuota total="'''+str(MAX_EPISODE_STEPS)+'''" />
-                    </AgentHandlers>
-                </AgentSection>
-            </Mission>'''
-
-
-def get_action(obs, q_network, epsilon, allow_break_action):
-    """
-    Select action according to e-greedy policy
-
-    Args:
-        obs (np-array): current observation, size (obs_size)
-        q_network (QNetwork): Q-Network
-        epsilon (float): probability of choosing a random action
-
-    Returns:
-        action (int): chosen action [0, action_size)
-    """
-
-    # Prevent computation graph from being calculated
-    with torch.no_grad():
-        # Calculate Q-values for each action
-        obs_torch = torch.tensor(obs.copy(), dtype=torch.float).unsqueeze(0)
-        action_values = q_network(obs_torch)
-
-        # Remove attack/mine from possible actions if not facing a diamond
-        if not allow_break_action:
-            action_values[0, 3] = -float('inf')  
-
-        # Select action with highest Q-value
-        if random.random() > epsilon:
-            action_idx = torch.argmax(action_values).item()
-
-        else:
-            if not allow_break_action:
-                action_idx = random.randint(0, 2)
-
-            else:
-                action_idx = random.randint(0, 3)
-        
-    return action_idx
-
-
-def init_malmo(agent_host):
-    """
-    Initialize new malmo mission.
-    """
-    my_mission = MalmoPython.MissionSpec(GetMissionXML(), True)
-    my_mission_record = MalmoPython.MissionRecordSpec()
-    my_mission.requestVideo(800, 500)
-    my_mission.setViewpoint(1)
-
-    max_retries = 3
-    my_clients = MalmoPython.ClientPool()
-    my_clients.add(MalmoPython.ClientInfo('127.0.0.1', 10000)) # add Minecraft machines here as available
-
-    for retry in range(max_retries):
+        # Malmo Parameters
+        self.agent_host = MalmoPython.AgentHost()
         try:
-            agent_host.startMission( my_mission, my_clients, my_mission_record, 0, "DiamondCollector" )
-            break
+            self.agent_host.parse( sys.argv )
         except RuntimeError as e:
-            if retry == max_retries - 1:
-                print("Error starting mission:", e)
-                exit(1)
-            else:
-                time.sleep(2)
+            print('ERROR:', e)
+            print(self.agent_host.getUsage())
+            exit(1)
 
-    return agent_host
+        # ResourceCollector Parameters
+        self.obs = None
+        self.episode_step = 0
+        self.episode_return = 0
+        self.returns = []
+        self.steps = []
 
+    def reset(self):
+        """
+        Resets the environment for the next episode.
 
-def get_observation(world_state):
-    """
-    Use the agent observation API to get a 2 x 5 x 5 grid around the agent. 
-    The agent is in the center square facing up.
+        Returns
+            observation: <np.array> flattened initial obseravtion
+        """
+        # Reset Malmo
+        world_state = self.init_malmo()
 
-    Args
-        world_state: <object> current agent world state
+        # Reset Variables
+        self.returns.append(self.episode_return)
+        current_step = self.steps[-1] if len(self.steps) > 0 else 0
+        self.steps.append(current_step + self.episode_step)
+        self.episode_return = 0
+        self.episode_step = 0
 
-    Returns
-        observation: <np.array>
-    """
-    obs = np.zeros((2, OBS_SIZE, OBS_SIZE))
+        # Log
+        if len(self.returns) > self.log_frequency and \
+            len(self.returns) % self.log_frequency == 0:
+            self.log_returns()
 
-    while world_state.is_mission_running:
-        time.sleep(0.1)
-        world_state = agent_host.getWorldState()
-        if len(world_state.errors) > 0:
-            raise AssertionError('Could not load grid.')
+        # Get Observation
+        self.obs = self.get_observation(world_state)
 
-        if world_state.number_of_observations_since_last_state > 0:
-            # First we get the json from the observation API
-            msg = world_state.observations[-1].text
-            observations = json.loads(msg)
+        return self.obs.flatten()
 
-            # Get observation
-            grid = observations['floorAll']
-            grid_binary = [1 if x == 'diamond_ore' or x == 'lava' else 0 for x in grid]
-            obs = np.reshape(grid_binary, (2, OBS_SIZE, OBS_SIZE))
+    def step(self, action):
+        """
+        Take an action in the environment and return the results.
 
-            # Rotate observation with orientation of agent
-            yaw = observations['Yaw']
-            if yaw == 270:
-                obs = np.rot90(obs, k=1, axes=(1, 2))
-            elif yaw == 0:
-                obs = np.rot90(obs, k=2, axes=(1, 2))
-            elif yaw == 90:
-                obs = np.rot90(obs, k=3, axes=(1, 2))
-            
-            break
+        Args
+            action: <int> index of the action to take
 
-    return obs
+        Returns
+            observation: <np.array> flattened array of obseravtion
+            reward: <int> reward from taking action
+            done: <bool> indicates terminal state
+            info: <dict> dictionary of extra information
+        """
 
+        # Get Action
+        command = self.action_dict[action]
+        allow_break_action = self.obs[1, int(self.obs_size/2)-1, int(self.obs_size/2)] == 1
+        if command != 'attack 1' or allow_break_action:
+            self.agent_host.sendCommand(command)
+            time.sleep(.1)
+            self.episode_step += 1
 
-def prepare_batch(replay_buffer):
-    """
-    Randomly sample batch from replay buffer and prepare tensors
-
-    Args:
-        replay_buffer (list): obs, action, next_obs, reward, done tuples
-
-    Returns:
-        obs (tensor): float tensor of size (BATCH_SIZE x obs_size
-        action (tensor): long tensor of size (BATCH_SIZE)
-        next_obs (tensor): float tensor of size (BATCH_SIZE x obs_size)
-        reward (tensor): float tensor of size (BATCH_SIZE)
-        done (tensor): float tensor of size (BATCH_SIZE)
-    """
-    batch_data = random.sample(replay_buffer, BATCH_SIZE)
-    obs = torch.tensor([x[0] for x in batch_data], dtype=torch.float)
-    action = torch.tensor([x[1] for x in batch_data], dtype=torch.long)
-    next_obs = torch.tensor([x[2] for x in batch_data], dtype=torch.float)
-    reward = torch.tensor([x[3] for x in batch_data], dtype=torch.float)
-    done = torch.tensor([x[4] for x in batch_data], dtype=torch.float)
-    
-    return obs, action, next_obs, reward, done
-  
-
-def learn(batch, optim, q_network, target_network):
-    """
-    Update Q-Network according to DQN Loss function
-
-    Args:
-        batch (tuple): tuple of obs, action, next_obs, reward, and done tensors
-        optim (Adam): Q-Network optimizer
-        q_network (QNetwork): Q-Network
-        target_network (QNetwork): Target Q-Network
-    """
-    obs, action, next_obs, reward, done = batch
-
-    optim.zero_grad()
-    values = q_network(obs).gather(1, action.unsqueeze(-1)).squeeze(-1)
-    target = torch.max(target_network(next_obs), 1)[0]
-    target = reward + GAMMA * target * (1 - done)
-    loss = torch.mean((target - values) ** 2)
-    loss.backward()
-    optim.step()
-
-    return loss.item()
-
-
-def log_returns(steps, returns):
-    """
-    Log the current returns as a graph and text file
-
-    Args:
-        steps (list): list of global steps after each episode
-        returns (list): list of total return of each episode
-    """
-    box = np.ones(10) / 10
-    returns_smooth = np.convolve(returns, box, mode='same')
-    plt.clf()
-    plt.plot(steps, returns_smooth)
-    plt.title('Diamond Collector')
-    plt.ylabel('Return')
-    plt.xlabel('Steps')
-    plt.savefig('returns.png')
-
-    with open('returns.txt', 'w') as f:
-        for value in returns:
-            f.write("{}\n".format(value)) 
-
-
-def train(agent_host):
-    """
-    Main loop for the DQN learning algorithm
-
-    Args:
-        agent_host (MalmoPython.AgentHost)
-    """
-    # Init networks
-    q_network = QNetwork((2, OBS_SIZE, OBS_SIZE), len(ACTION_DICT))
-    target_network = QNetwork((2, OBS_SIZE, OBS_SIZE), len(ACTION_DICT))
-    target_network.load_state_dict(q_network.state_dict())
-
-    # Init optimizer
-    optim = torch.optim.Adam(q_network.parameters(), lr=LEARNING_RATE)
-
-    # Init replay buffer
-    replay_buffer = deque(maxlen=REPLAY_BUFFER_SIZE)
-
-    # Init vars
-    global_step = 0
-    num_episode = 0
-    epsilon = 1
-    start_time = time.time()
-    returns = []
-    steps = []
-
-    # Begin main loop
-    loop = tqdm(total=MAX_GLOBAL_STEPS, position=0, leave=False)
-    while global_step < MAX_GLOBAL_STEPS:
-        episode_step = 0
-        episode_return = 0
-        episode_loss = 0
+        # Get Done
         done = False
+        if self.episode_step >= self.max_episode_steps or \
+                (self.obs[0, int(self.obs_size/2)-1, int(self.obs_size/2)] == 1 and \
+                self.obs[1, int(self.obs_size/2)-1, int(self.obs_size/2)] == 0 and \
+                command == 'move 1'):
+            done = True
+            time.sleep(2)  
 
-        # Setup Malmo
-        agent_host = init_malmo(agent_host)
-        world_state = agent_host.getWorldState()
+        # Get Observation
+        world_state = self.agent_host.getWorldState()
+        for error in world_state.errors:
+            print("Error:", error.text)
+        self.obs = self.get_observation(world_state) 
+
+        # Get Reward
+        reward = 0
+        for r in world_state.rewards:
+            reward += r.getValue()
+        self.episode_return += reward
+
+        return self.obs.flatten(), reward, done, dict()
+
+    def get_mission_xml(self):
+        xml = ""
+        for _ in range(int(self.max_episode_steps * self.reward_density)):
+            x = randint(-self.size, self.size)
+            z = randint(-self.size, self.size)
+            xml += "<DrawBlock x='{}'  y='2' z='{}' type='diamond_ore' />".format(x, z)
+
+        for _ in range(int(self.max_episode_steps * self.reward_density)):
+            x = randint(-self.size, self.size)
+            z = randint(-self.size, self.size)
+            xml += "<DrawBlock x='{}'  y='2' z='{}' type='iron_ore' />".format(x, z)
+
+        for _ in range(int(self.max_episode_steps * self.reward_density)):
+            x = randint(-self.size, self.size)
+            z = randint(-self.size, self.size)
+            xml += "<DrawBlock x='{}'  y='2' z='{}' type='gold_ore' />".format(x, z)
+        
+        for i in range(int(self.max_episode_steps * self.penalty_density)):
+            x = randint(-self.size, self.size)
+            z = randint(-self.size, self.size)
+            xml += "<DrawBlock x='{}' y='1' z='{}' type='flowing_lava'/>".format(x, z)
+
+        return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+                <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+                    <About>
+                        <Summary>Resource Gatherer</Summary>
+                    </About>
+
+                    <ServerSection>
+                        <ServerInitialConditions>
+                            <Time>
+                                <StartTime>12000</StartTime>
+                                <AllowPassageOfTime>true</AllowPassageOfTime>
+                            </Time>
+                            <Weather>clear</Weather>
+                        </ServerInitialConditions>
+                        <ServerHandlers>
+                            <FlatWorldGenerator generatorString="3;7,2;21;"/>
+                            <DrawingDecorator>''' + \
+                                "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='air'/>".format(-self.size, self.size, -self.size, self.size) + \
+                                "<DrawCuboid x1='{}' x2='{}' y1='1' y2='1' z1='{}' z2='{}' type='stone'/>".format(-self.size, self.size, -self.size, self.size) + \
+                                "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, self.size+1, -self.size-1, -self.size-1) + \
+                                "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, self.size+1, self.size+1, self.size+1) + \
+                                "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, -self.size-1, -self.size-1, self.size+1) + \
+                                "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(self.size+1, self.size+1, -self.size-1, self.size+1) + \
+                                xml + \
+                                '''<DrawBlock x='0'  y='2' z='0' type='air' />
+                                <DrawBlock x='0'  y='1' z='0' type='stone' />
+                            </DrawingDecorator>
+                            <ServerQuitWhenAnyAgentFinishes/>
+                        </ServerHandlers>
+                    </ServerSection>
+
+                    <AgentSection mode="Survival">
+                        <Name>SpeedMiner</Name>
+                        <AgentStart>
+                            <Placement x="0.5" y="2" z="0.5" pitch="45" yaw="0"/>
+                            <Inventory>
+                                <InventoryItem slot="0" type="diamond_pickaxe"/>
+                            </Inventory>
+                        </AgentStart>
+                        <AgentHandlers>
+                            <DiscreteMovementCommands/>
+                            <ObservationFromFullStats/>
+                            <ObservationFromGrid>
+                                <Grid name="floorAll">
+                                    <min x="-'''+str(int(self.obs_size/2))+'''" y="-1" z="-'''+str(int(self.obs_size/2))+'''"/>
+                                    <max x="'''+str(int(self.obs_size/2))+'''" y="0" z="'''+str(int(self.obs_size/2))+'''"/>
+                                </Grid>
+                            </ObservationFromGrid>
+                            <RewardForCollectingItem>
+                                <Item type="diamond" reward="1"/> 
+                                <Item type="gold_ore" reward="1"/> 
+                                <Item type="iron_ore" reward="1"/> 
+                            </RewardForCollectingItem>
+                            <AgentQuitFromReachingCommandQuota total="'''+str(self.max_episode_steps)+'''" />
+                        </AgentHandlers>
+                    </AgentSection>
+                </Mission>'''
+
+    def init_malmo(self):
+        """
+        Initialize new malmo mission.
+        """
+        my_mission = MalmoPython.MissionSpec(self.get_mission_xml(), True)
+        my_mission_record = MalmoPython.MissionRecordSpec()
+        my_mission.requestVideo(800, 500)
+        my_mission.setViewpoint(1)
+
+        max_retries = 3
+        my_clients = MalmoPython.ClientPool()
+        my_clients.add(MalmoPython.ClientInfo('127.0.0.1', 10000)) # add Minecraft machines here as available
+
+        for retry in range(max_retries):
+            try:
+                self.agent_host.startMission( my_mission, my_clients, my_mission_record, 0, 'ResourceCollector' )
+                break
+            except RuntimeError as e:
+                if retry == max_retries - 1:
+                    print("Error starting mission:", e)
+                    exit(1)
+                else:
+                    time.sleep(2)
+
+        world_state = self.agent_host.getWorldState()
         while not world_state.has_mission_begun:
             time.sleep(0.1)
-            world_state = agent_host.getWorldState()
+            world_state = self.agent_host.getWorldState()
             for error in world_state.errors:
-                print("\nError:",error.text)
-        obs = get_observation(world_state)
+                print("\nError:", error.text)
 
-        # Run episode
+        return world_state
+
+    def get_observation(self, world_state):
+        """
+        Use the agent observation API to get a 2 x 5 x 5 grid around the agent. 
+        The agent is in the center square facing up.
+
+        Args
+            world_state: <object> current agent world state
+
+        Returns
+            observation: <np.array>
+        """
+        obs = np.zeros((2, self.obs_size, self.obs_size))
+
         while world_state.is_mission_running:
-            # Get action
-            allow_break_action = obs[1, int(OBS_SIZE/2)-1, int(OBS_SIZE/2)] == 1
-            action_idx = get_action(obs, q_network, epsilon, allow_break_action)
-            command = ACTION_DICT[action_idx]
+            time.sleep(0.1)
+            world_state = self.agent_host.getWorldState()
+            if len(world_state.errors) > 0:
+                raise AssertionError('Could not load grid.')
 
-            # Take step
-            agent_host.sendCommand(command)
+            if world_state.number_of_observations_since_last_state > 0:
+                # First we get the json from the observation API
+                msg = world_state.observations[-1].text
+                observations = json.loads(msg)
 
-            # If your agent isn't registering reward you may need to increase this
-            time.sleep(.1)
+                # Get observation
+                grid = observations['floorAll']
+                grid_binary = [1 if x == 'diamond_ore' or x == 'iron_ore' or x == 'gold_ore' or x == 'lava' else 0 for x in grid]
+                obs = np.reshape(grid_binary, (2, self.obs_size, self.obs_size))
 
-            # We have to manually calculate terminal state to give malmo time to register the end of the mission
-            # If you see "commands connection is not open. Is the mission running?" you may need to increase this
-            episode_step += 1
-            if episode_step >= MAX_EPISODE_STEPS or \
-                    (obs[0, int(OBS_SIZE/2)-1, int(OBS_SIZE/2)] == 1 and \
-                    obs[1, int(OBS_SIZE/2)-1, int(OBS_SIZE/2)] == 0 and \
-                    command == 'move 1'):
-                done = True
-                time.sleep(2)  
+                # Rotate observation with orientation of agent
+                yaw = observations['Yaw']
+                if yaw == 270:
+                    obs = np.rot90(obs, k=1, axes=(1, 2))
+                elif yaw == 0:
+                    obs = np.rot90(obs, k=2, axes=(1, 2))
+                elif yaw == 90:
+                    obs = np.rot90(obs, k=3, axes=(1, 2))
+                
+                break
 
-            # Get next observation
-            world_state = agent_host.getWorldState()
-            for error in world_state.errors:
-                print("Error:", error.text)
-            next_obs = get_observation(world_state) 
+        return obs
 
-            # Get reward
-            reward = 0
-            for r in world_state.rewards:
-                reward += r.getValue()
-            episode_return += reward
+    def log_returns(self):
+        """
+        Log the current returns as a graph and text file
 
-            # Store step in replay buffer
-            replay_buffer.append((obs, action_idx, next_obs, reward, done))
-            obs = next_obs
+        Args:
+            steps (list): list of global steps after each episode
+            returns (list): list of total return of each episode
+        """
+        box = np.ones(self.log_frequency) / self.log_frequency
+        returns_smooth = np.convolve(self.returns, box, mode='same')
+        plt.clf()
+        plt.plot(self.steps, returns_smooth)
+        plt.title('Resource Gatherer')
+        plt.ylabel('Return')
+        plt.xlabel('Steps')
+        plt.savefig('returns.png')
 
-            # Learn
-            global_step += 1
-            if global_step > START_TRAINING and global_step % LEARN_FREQUENCY == 0:
-                batch = prepare_batch(replay_buffer)
-                loss = learn(batch, optim, q_network, target_network)
-                episode_loss += loss
-
-                if epsilon > MIN_EPSILON:
-                    epsilon *= EPSILON_DECAY
-
-                if global_step % TARGET_UPDATE == 0:
-                    target_network.load_state_dict(q_network.state_dict())
-
-        num_episode += 1
-        returns.append(episode_return)
-        steps.append(global_step)
-        avg_return = sum(returns[-min(len(returns), 10):]) / min(len(returns), 10)
-        loop.update(episode_step)
-        loop.set_description('Episode: {} Steps: {} Time: {:.2f} Loss: {:.2f} Last Return: {:.2f} Avg Return: {:.2f}'.format(
-            num_episode, global_step, (time.time() - start_time) / 60, episode_loss, episode_return, avg_return))
-
-        if num_episode > 0 and num_episode % 10 == 0:
-            log_returns(steps, returns)
-            print()
+        with open('returns.txt', 'w') as f:
+            for step, value in zip(self.steps, self.returns):
+                f.write("{}\t{}\n".format(step, value)) 
 
 
 if __name__ == '__main__':
-    # Create default Malmo objects:
-    agent_host = MalmoPython.AgentHost()
-    try:
-        agent_host.parse( sys.argv )
-    except RuntimeError as e:
-        print('ERROR:', e)
-        print(agent_host.getUsage())
-        exit(1)
-    if agent_host.receivedArgument("help"):
-        print(agent_host.getUsage())
-        exit(0)
+    ray.init()
+    trainer = ppo.PPOTrainer(env=ResourceCollector, config={
+        'env_config': {},           # No environment parameters to configure
+        'framework': 'torch',       # Use pyotrch instead of tensorflow
+        'num_gpus': 0,              # We aren't using GPUs
+        'num_workers': 0            # We aren't using parallelism
+    })
 
-    train(agent_host)
+    while True:
+        print(trainer.train())
