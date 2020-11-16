@@ -21,7 +21,7 @@ class ResourceCollector(gym.Env):
 
     def __init__(self, env_config):  
         # Static Parameters
-        self.size = 10
+        self.size = 5
         self.reward_density = .1
         self.penalty_density = .02
         self.obs_size = 5
@@ -128,21 +128,41 @@ class ResourceCollector(gym.Env):
 
     def get_mission_xml(self):
         xml = ""
-        for _ in range(int(self.max_episode_steps * self.reward_density)):
+        for _ in range(int(self.max_episode_steps * 0.03)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
             xml += "<DrawBlock x='{}'  y='2' z='{}' type='diamond_ore' />".format(x, z)
-
-        for _ in range(int(self.max_episode_steps * self.reward_density)):
-            x = randint(-self.size, self.size)
-            z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='2' z='{}' type='iron_ore' />".format(x, z)
-
-        for _ in range(int(self.max_episode_steps * self.reward_density)):
+        
+        for _ in range(int(self.max_episode_steps * 0.06)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
             xml += "<DrawBlock x='{}'  y='2' z='{}' type='gold_ore' />".format(x, z)
         
+        for _ in range(int(self.max_episode_steps * 0.1)):
+            x = randint(-self.size, self.size)
+            z = randint(-self.size, self.size)
+            xml += "<DrawBlock x='{}'  y='2' z='{}' type='iron_ore' />".format(x, z)
+        
+        for _ in range(int(self.max_episode_steps * 0.13)):
+            x = randint(-self.size, self.size)
+            z = randint(-self.size, self.size)
+            xml += "<DrawBlock x='{}'  y='2' z='{}' type='emerald_ore' />".format(x, z)
+
+        for _ in range(int(self.max_episode_steps * 0.16)):
+            x = randint(-self.size, self.size)
+            z = randint(-self.size, self.size)
+            xml += "<DrawBlock x='{}'  y='2' z='{}' type='coal_ore' />".format(x, z)
+
+        for _ in range(int(self.max_episode_steps * 0.2)):
+            x = randint(-self.size, self.size)
+            z = randint(-self.size, self.size)
+            xml += "<DrawBlock x='{}'  y='2' z='{}' type='lapis_ore' />".format(x, z)
+        
+        for _ in range(int(self.max_episode_steps * 0.2)):
+            x = randint(-self.size, self.size)
+            z = randint(-self.size, self.size)
+            xml += "<DrawBlock x='{}'  y='2' z='{}' type='redstone_ore' />".format(x, z)
+
         for i in range(int(self.max_episode_steps * self.penalty_density)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
@@ -198,9 +218,13 @@ class ResourceCollector(gym.Env):
                                 </Grid>
                             </ObservationFromGrid>
                             <RewardForCollectingItem>
-                                <Item type="diamond" reward="1"/> 
-                                <Item type="gold_ore" reward="1"/> 
-                                <Item type="iron_ore" reward="1"/> 
+                                <Item type="diamond" reward="6"/> 
+                                <Item type="gold_ore" reward="5"/> 
+                                <Item type="iron_ore" reward="4"/> 
+                                <Item type="emerald_ore" reward="3"/> 
+                                <Item type="coal_ore" reward="2"/> 
+                                <Item type="lapis_ore" reward="1"/> 
+                                <Item type="redstone_ore" reward="1"/> 
                             </RewardForCollectingItem>
                             <AgentQuitFromReachingCommandQuota total="'''+str(self.max_episode_steps)+'''" />
                         </AgentHandlers>
@@ -266,7 +290,7 @@ class ResourceCollector(gym.Env):
 
                 # Get observation
                 grid = observations['floorAll']
-                grid_binary = [1 if x == 'diamond_ore' or x == 'iron_ore' or x == 'gold_ore' or x == 'lava' else 0 for x in grid]
+                grid_binary = [1 if x == 'diamond_ore' or x == 'gold_ore' or x == 'iron_ore' or x == 'emerald_ore' or x == 'coal_ore' or x == 'lapis_ore' or x == 'redstone_ore' or x == 'lava' else 0 for x in grid]
                 obs = np.reshape(grid_binary, (2, self.obs_size, self.obs_size))
 
                 # Rotate observation with orientation of agent

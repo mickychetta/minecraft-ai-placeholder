@@ -57,8 +57,6 @@ github
 - mvp for algorithm
 - learn rllib (gym env)
 - observation grid xml stationary grid
-- set rewards list and spawn all ores
-    - mark numpy array w channels
 - change terminal state to 30 sec time limie
 - agent movement torwards coordinates 
-- finish status report
+- finish status report/video
