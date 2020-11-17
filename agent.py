@@ -53,6 +53,8 @@ class ResourceCollector(gym.Env):
         self.episode_return = 0
         self.returns = []
         self.steps = []
+        self.episode_start = time.time()
+        self.episode_end = time.time()
 
     def reset(self):
         """
@@ -70,6 +72,8 @@ class ResourceCollector(gym.Env):
         self.steps.append(current_step + self.episode_step)
         self.episode_return = 0
         self.episode_step = 0
+        self.episode_start = time.time()
+        self.episode_end = time.time()
 
         # Log
         if len(self.returns) > self.log_frequency and \
@@ -102,15 +106,26 @@ class ResourceCollector(gym.Env):
             self.agent_host.sendCommand(command)
             time.sleep(.1)
             self.episode_step += 1
-
+            self.episode_end = time.time()
+        
         # Get Done
         done = False
-        if self.episode_step >= self.max_episode_steps or \
+        if self.episode_end - self.episode_start >= 30.0 or \
                 (self.obs[0, int(self.obs_size/2)-1, int(self.obs_size/2)] == 1 and \
                 self.obs[1, int(self.obs_size/2)-1, int(self.obs_size/2)] == 0 and \
                 command == 'move 1'):
+            print(self.episode_end - self.episode_start)
             done = True
-            time.sleep(2)  
+            time.sleep(2)
+
+        # # Get Done
+        # done = False
+        # if self.episode_step >= self.max_episode_steps or \
+                # (self.obs[0, int(self.obs_size/2)-1, int(self.obs_size/2)] == 1 and \
+                # self.obs[1, int(self.obs_size/2)-1, int(self.obs_size/2)] == 0 and \
+                # command == 'move 1'):
+        #     done = True
+        #     time.sleep(2)  
 
         # Get Observation
         world_state = self.agent_host.getWorldState()
@@ -223,7 +238,7 @@ class ResourceCollector(gym.Env):
                                 <Item type="lapis_ore" reward="0.1"/> 
                                 <Item type="redstone" reward="0.1"/> 
                             </RewardForCollectingItem>
-                            <AgentQuitFromReachingCommandQuota total="'''+str(self.max_episode_steps)+'''" />
+                            <AgentQuitFromTimeUp timeLimitMs="'''+str(30000)+'''" />
                         </AgentHandlers>
                     </AgentSection>
                 </Mission>'''
