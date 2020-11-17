@@ -53,6 +53,8 @@ class ResourceCollector(gym.Env):
         self.episode_return = 0
         self.returns = []
         self.steps = []
+        self.episode_start = time.time()
+        self.episode_end = time.time()
 
     def reset(self):
         """
@@ -70,6 +72,8 @@ class ResourceCollector(gym.Env):
         self.steps.append(current_step + self.episode_step)
         self.episode_return = 0
         self.episode_step = 0
+        self.episode_start = time.time()
+        self.episode_end = time.time()
 
         # Log
         if len(self.returns) > self.log_frequency and \
@@ -97,20 +101,21 @@ class ResourceCollector(gym.Env):
 
         # Get Action
         command = self.action_dict[action]
-        allow_break_action = self.obs[1, int(self.obs_size/2)-1, int(self.obs_size/2)] == 1
+        # allow if there is a block we want to mine in the ground in front of the agent (y=1)
+        allow_break_action = self.obs[0, int(self.obs_size/2)-1, int(self.obs_size/2)] == 1
         if command != 'attack 1' or allow_break_action:
             self.agent_host.sendCommand(command)
             time.sleep(.1)
             self.episode_step += 1
-
+            self.episode_end = time.time()
+        
         # Get Done
+        # Done is true if we reach max # of steps
         done = False
-        if self.episode_step >= self.max_episode_steps or \
-                (self.obs[0, int(self.obs_size/2)-1, int(self.obs_size/2)] == 1 and \
-                self.obs[1, int(self.obs_size/2)-1, int(self.obs_size/2)] == 0 and \
-                command == 'move 1'):
+        if self.episode_end - self.episode_start >= 30.0:
+            print(self.episode_end - self.episode_start)
             done = True
-            time.sleep(2)  
+            time.sleep(2)
 
         # Get Observation
         world_state = self.agent_host.getWorldState()
@@ -123,6 +128,7 @@ class ResourceCollector(gym.Env):
         for r in world_state.rewards:
             reward += r.getValue()
         self.episode_return += reward
+        print("Current episode reward:", self.episode_return)
 
         return self.obs.flatten(), reward, done, dict()
 
@@ -132,37 +138,37 @@ class ResourceCollector(gym.Env):
         for _ in range(int(self.max_episode_steps * 0.2)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='2' z='{}' type='redstone_ore' />".format(x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='redstone_ore' />".format(x, z)
 
         for _ in range(int(self.max_episode_steps * 0.2)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='2' z='{}' type='lapis_ore' />".format(x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lapis_ore' />".format(x, z)
 
         for _ in range(int(self.max_episode_steps * 0.16)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='2' z='{}' type='coal_ore' />".format(x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='coal_ore' />".format(x, z)
 
         for _ in range(int(self.max_episode_steps * 0.13)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='2' z='{}' type='emerald_ore' />".format(x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='emerald_ore' />".format(x, z)
 
         for _ in range(int(self.max_episode_steps * 0.1)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='2' z='{}' type='iron_ore' />".format(x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='iron_ore' />".format(x, z)
 
         for _ in range(int(self.max_episode_steps * 0.06)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='2' z='{}' type='gold_ore' />".format(x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='gold_ore' />".format(x, z)
 
         for _ in range(int(self.max_episode_steps * 0.03)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='2' z='{}' type='diamond_ore' />".format(x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='diamond_ore' />".format(x, z)
     
 
         return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
@@ -223,7 +229,7 @@ class ResourceCollector(gym.Env):
                                 <Item type="lapis_ore" reward="0.1"/> 
                                 <Item type="redstone" reward="0.1"/> 
                             </RewardForCollectingItem>
-                            <AgentQuitFromReachingCommandQuota total="'''+str(self.max_episode_steps)+'''" />
+                            <AgentQuitFromTimeUp timeLimitMs="'''+str(30000)+'''" />
                         </AgentHandlers>
                     </AgentSection>
                 </Mission>'''
@@ -251,7 +257,7 @@ class ResourceCollector(gym.Env):
                     exit(1)
                 else:
                     time.sleep(2)
-
+ 
         world_state = self.agent_host.getWorldState()
         while not world_state.has_mission_begun:
             time.sleep(0.1)
