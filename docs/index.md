@@ -6,7 +6,7 @@ title: Home
 ![logo](./images/title.png)
 <img src="./images/background.jpg" alt="forest" width="800">
 
-### Speed Miners will use Q-Learning to collect the maximum amount of resources within a grid in Malmo (Minecraft). 
+### Speed Miners will use Reinforcement Learning to collect the most valuable resources within a grid in Malmo (Minecraft). 
 
 <br>
 
