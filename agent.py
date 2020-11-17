@@ -33,10 +33,19 @@ class ResourceCollector(gym.Env):
             2: 'turn -1',  # Turn 90 degrees to the left
             3: 'attack 1'  # Destroy block
         }
+        self.blocks_dict = {
+            "redstone_ore": 1,
+            "lapis_ore": 2,
+            "coal_ore": 3,
+            "emerald_ore": 4,
+            "iron_ore": 5,
+            "gold_ore": 6,
+            "diamond_ore": 7
+        }
 
         # Rllib Parameters
         self.action_space = Discrete(len(self.action_dict))
-        self.observation_space = Box(0, 1, shape=(np.prod([2, self.obs_size, self.obs_size]), ), dtype=np.int32)
+        self.observation_space = Box(0, 7, shape=(np.prod([2, self.obs_size, self.obs_size]), ), dtype=np.int32)
 
         # Malmo Parameters
         self.agent_host = MalmoPython.AgentHost()
@@ -102,7 +111,7 @@ class ResourceCollector(gym.Env):
         # Get Action
         command = self.action_dict[action]
         # allow if there is a block we want to mine in the ground in front of the agent (y=1)
-        allow_break_action = self.obs[0, int(self.obs_size/2)-1, int(self.obs_size/2)] == 1
+        allow_break_action = self.obs[0, int(self.obs_size/2)-1, int(self.obs_size/2)] > 0
         if command != 'attack 1' or allow_break_action:
             self.agent_host.sendCommand(command)
             time.sleep(.1)
@@ -294,8 +303,8 @@ class ResourceCollector(gym.Env):
 
                 # Get observation
                 grid = observations['floorAll']
-                grid_binary = [1 if x == 'diamond_ore' or x == 'gold_ore' or x == 'iron_ore' or x == 'emerald_ore' or x == 'coal_ore' or x == 'lapis_ore' or x == 'redstone_ore' else 0 for x in grid]
-                obs = np.reshape(grid_binary, (2, self.obs_size, self.obs_size))
+                grid_translated = [self.blocks_dict[x] if x in self.blocks_dict else 0 for x in grid]
+                obs = np.reshape(grid_translated, (2, self.obs_size, self.obs_size))
 
                 # Rotate observation with orientation of agent
                 yaw = observations['Yaw']
