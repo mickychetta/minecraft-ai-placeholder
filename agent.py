@@ -97,6 +97,7 @@ class ResourceCollector(gym.Env):
 
         # Get Action
         command = self.action_dict[action]
+        print("command:", command, "\n")
         allow_break_action = self.obs[1, int(self.obs_size/2)-1, int(self.obs_size/2)] == 1
         if command != 'attack 1' or allow_break_action:
             self.agent_host.sendCommand(command)
@@ -104,11 +105,10 @@ class ResourceCollector(gym.Env):
             self.episode_step += 1
 
         # Get Done
+        # Done is true if we reach max # of steps
+        # TODO: change it to be based on time
         done = False
-        if self.episode_step >= self.max_episode_steps or \
-                (self.obs[0, int(self.obs_size/2)-1, int(self.obs_size/2)] == 1 and \
-                self.obs[1, int(self.obs_size/2)-1, int(self.obs_size/2)] == 0 and \
-                command == 'move 1'):
+        if self.episode_step >= self.max_episode_steps:
             done = True
             time.sleep(2)  
 
@@ -132,37 +132,37 @@ class ResourceCollector(gym.Env):
         for _ in range(int(self.max_episode_steps * 0.2)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='2' z='{}' type='redstone_ore' />".format(x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='redstone_ore' />".format(x, z)
 
         for _ in range(int(self.max_episode_steps * 0.2)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='2' z='{}' type='lapis_ore' />".format(x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lapis_ore' />".format(x, z)
 
         for _ in range(int(self.max_episode_steps * 0.16)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='2' z='{}' type='coal_ore' />".format(x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='coal_ore' />".format(x, z)
 
         for _ in range(int(self.max_episode_steps * 0.13)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='2' z='{}' type='emerald_ore' />".format(x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='emerald_ore' />".format(x, z)
 
         for _ in range(int(self.max_episode_steps * 0.1)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='2' z='{}' type='iron_ore' />".format(x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='iron_ore' />".format(x, z)
 
         for _ in range(int(self.max_episode_steps * 0.06)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='2' z='{}' type='gold_ore' />".format(x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='gold_ore' />".format(x, z)
 
         for _ in range(int(self.max_episode_steps * 0.03)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='2' z='{}' type='diamond_ore' />".format(x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='diamond_ore' />".format(x, z)
     
 
         return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
@@ -251,7 +251,7 @@ class ResourceCollector(gym.Env):
                     exit(1)
                 else:
                     time.sleep(2)
-
+ 
         world_state = self.agent_host.getWorldState()
         while not world_state.has_mission_begun:
             time.sleep(0.1)
@@ -284,7 +284,7 @@ class ResourceCollector(gym.Env):
                 # First we get the json from the observation API
                 msg = world_state.observations[-1].text
                 observations = json.loads(msg)
-
+                print("observations:\n", observations)
                 # Get observation
                 grid = observations['floorAll']
                 grid_binary = [1 if x == 'diamond_ore' or x == 'gold_ore' or x == 'iron_ore' or x == 'emerald_ore' or x == 'coal_ore' or x == 'lapis_ore' or x == 'redstone_ore' else 0 for x in grid]
