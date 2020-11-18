@@ -2,6 +2,7 @@
 layout: default
 title: Status
 ---
+<iframe width="560" height="315" src="https://www.youtube.com/watch?v=Je34-26j4RI&feature=youtu.be&fbclid=IwAR2oSNIRgHvJHfKo3Z9kF-BsZtdDM93IuseaIsOQ-zkHK4dMvGIW7X8mViE" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 # Project Summary
 Our goals for our project have changed since our initial proposal. Our original proposal was to buid an agent that could gather the appropriate amount of obsidian, construct a nether portal, and activate it with flint and steel. After deciding that the original proposal would be too difficult, we've decided to focus on the gathering aspect. Our goal for our resource gatherer is to efficiently gather resources with varying values within a certain time limit. If time permits, we plan to have our agent craft weapons and armors as well. 
