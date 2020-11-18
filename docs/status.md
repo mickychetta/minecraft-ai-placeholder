@@ -57,11 +57,11 @@ In our evaluation process, we will take into consideration the rewards given fro
 For our baseline, we created a 6x6 grid for our agent to mine in. The ground includes different ores to mine, but does not yet include obstacles such as lava. Dispalyed below is what our baseline setup looks like:
 
 <br>
-![setup](./images/baseline-setup)
+![setup](./images/baseline-setup.png)
 
 After having our agent train overnight, our agent noticeably improved and was able to gather more rewards on average for each 30 second episode.
 <br>
-![returns](./returns/returns1)
+![returns](./returns/returns1.png)
 
 In the very beginning of training, the agent frequently got stuck in holes in the ground after mining something and remained there for the rest of the episode. After training, we noticed that the agent was much better about navigating around the holes that it made. We also noticed that the agent became better about prioritizing higher reward items such as diamond. 
 
