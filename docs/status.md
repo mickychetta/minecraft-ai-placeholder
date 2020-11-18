@@ -49,7 +49,7 @@ Our agent will be rewarded for mining a variety of materials, including: diamond
 ![ores](./images/ores.jpg)
 
 ## Terminal States
-For our terminal states, we have deided to go with a timed approach rather than a step based approach. We set a threshold of 30 seconds for our agent to efficiently collect resources. Alternatively, if all resources have been collected in our grid, this also represents a terminal state.
+For our terminal states, we have deided to go with a timed approach rather than a step based approach. We set a threshold of 30 seconds for our agent to efficiently collect resources.
 
 # Evaluation
 In our evaluation process, we will take into consideration the rewards given from mining each ore. Each ore gives a reward based on its scarcity, which has been predetermined by our own choosing. Throughout our training period, we want our agent to mine higher valued rewards rather than the lower valued rewards within the 30 second time constraint for each episode.
