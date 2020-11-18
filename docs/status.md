@@ -57,11 +57,13 @@ In our evaluation process, we will take into consideration the rewards given fro
 For our baseline, we created a 6x6 grid for our agent to mine in. The ground includes different ores to mine, but does not yet include obstacles such as lava. Dispalyed below is what our baseline setup looks like:
 
 <br>
-![setup](./images/baseline-setup.png)
+<img src="./images/baseline.png" alt="setup" width="650">
 
 After having our agent train overnight, our agent noticeably improved and was able to gather more rewards on average for each 30 second episode.
 <br>
 ![returns](./returns/returns1.png)
+
+Our agent started off getting total reward scores below 10 for each episode, but overtime was able to achieve reward scores of 20 or above.
 
 In the very beginning of training, the agent frequently got stuck in holes in the ground after mining something and remained there for the rest of the episode. After training, we noticed that the agent was much better about navigating around the holes that it made. We also noticed that the agent became better about prioritizing higher reward items such as diamond. 
 
@@ -81,12 +83,5 @@ A stretch goal will be to transition from discrete movements to continuous movem
 Some of our goals will require us to expand our action dictionary and the observation space, which will likely require the agent to train even longer to reach a proficient level. One of our concerns is having an agent that will take too long to train given the things we want to give as input. What may potentially help us is experimenting with different reinforcement learning algorithms such as SAC, especially if we attempt to implement a continuous action space.
 
 # Resources Used
-Rllib
-Numpy
-Matplotlib
-Stackoverflow
-Malmo XML documentation
-Markdown styling
-Campuswire
-Github
+Rllib, Numpy, Matplotlib, Stackoverflow, Malmo XML documentation, Markdown styling, Campuswire, Github,
 OpenAI on PPO: https://spinningup.openai.com/en/latest/algorithms/ppo.html
