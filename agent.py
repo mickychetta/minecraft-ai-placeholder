@@ -36,12 +36,11 @@ class ResourceCollector(gym.Env):
         }
         self.blocks_dict = {
             "redstone_ore": 1,
-            "lapis_ore": 2,
-            "coal_ore": 3,
-            "emerald_ore": 4,
-            "iron_ore": 5,
-            "gold_ore": 6,
-            "diamond_ore": 7
+            "coal_ore": 2,
+            "emerald_ore": 3,
+            "iron_ore": 4,
+            "gold_ore": 5,
+            "diamond_ore": 6
         }
 
         # Rllib Parameters
@@ -144,17 +143,12 @@ class ResourceCollector(gym.Env):
     def get_mission_xml(self):
         xml = ""
 
-        for _ in range(int(self.max_episode_steps * 0.2)):
+        for _ in range(int(self.max_episode_steps * 0.25)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='redstone_ore' />".format(x, z)
 
-        for _ in range(int(self.max_episode_steps * 0.2)):
-            x = randint(-self.size, self.size)
-            z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lapis_ore' />".format(x, z)
-
-        for _ in range(int(self.max_episode_steps * 0.16)):
+        for _ in range(int(self.max_episode_steps * 0.17)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='coal_ore' />".format(x, z)
@@ -169,7 +163,7 @@ class ResourceCollector(gym.Env):
             z = randint(-self.size, self.size)
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='iron_ore' />".format(x, z)
 
-        for _ in range(int(self.max_episode_steps * 0.06)):
+        for _ in range(int(self.max_episode_steps * 0.07)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='gold_ore' />".format(x, z)
@@ -240,7 +234,6 @@ class ResourceCollector(gym.Env):
                                 <Item type="iron_ore" reward="4"/> 
                                 <Item type="emerald" reward="3"/> 
                                 <Item type="coal" reward="2"/> 
-                                <Item type="lapis_ore" reward="0.1"/> 
                                 <Item type="redstone" reward="0.1"/> 
                             </RewardForCollectingItem>
                             <RewardForTouchingBlockType>
