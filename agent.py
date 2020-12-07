@@ -243,6 +243,9 @@ class ResourceCollector(gym.Env):
                                 <Item type="lapis_ore" reward="0.1"/> 
                                 <Item type="redstone" reward="0.1"/> 
                             </RewardForCollectingItem>
+                            <RewardForTouchingBlockType>
+                                <Block type="bedrock" reward="-1" />
+                            </RewardForTouchingBlockType>
                             <AgentQuitFromTimeUp timeLimitMs="'''+str(30000)+'''" />
                         </AgentHandlers>
                     </AgentSection>
