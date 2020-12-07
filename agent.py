@@ -122,7 +122,6 @@ class ResourceCollector(gym.Env):
         # Done is true if we reach max # of steps
         done = False
         if self.episode_end - self.episode_start >= 30.0:
-            print(self.episode_end - self.episode_start)
             done = True
             time.sleep(2)
 
