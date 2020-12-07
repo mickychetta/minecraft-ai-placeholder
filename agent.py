@@ -32,6 +32,7 @@ class ResourceCollector(gym.Env):
             1: 'turn 1',  # Turn 90 degrees to the right
             2: 'turn -1',  # Turn 90 degrees to the left
             3: 'attack 1'  # Destroy block
+            4: 'jumpmove 1'  # Jump up and move forward 1 block
         }
         self.blocks_dict = {
             "redstone_ore": 1,
@@ -122,7 +123,6 @@ class ResourceCollector(gym.Env):
         # Done is true if we reach max # of steps
         done = False
         if self.episode_end - self.episode_start >= 30.0:
-            print(self.episode_end - self.episode_start)
             done = True
             time.sleep(2)
 
