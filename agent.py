@@ -31,7 +31,7 @@ class ResourceCollector(gym.Env):
             0: 'move 1',  # Move one block forward
             1: 'turn 1',  # Turn 90 degrees to the right
             2: 'turn -1',  # Turn 90 degrees to the left
-            3: 'attack 1'  # Destroy block
+            3: 'attack 1',  # Destroy block
             4: 'jumpmove 1'  # Jump up and move forward 1 block
         }
         self.blocks_dict = {
@@ -201,10 +201,14 @@ class ResourceCollector(gym.Env):
                                 "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='air'/>".format(-self.size, self.size, -self.size, self.size) + \
                                 "<DrawCuboid x1='{}' x2='{}' y1='1' y2='1' z1='{}' z2='{}' type='stone'/>".format(-self.size, self.size, -self.size, self.size) + \
                                 "<DrawCuboid x1='{}' x2='{}' y1='0' y2='-5' z1='{}' z2='{}' type='bedrock'/>".format(-self.size, self.size, -self.size, self.size) + \
-                                "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='bedrock'/>".format(-self.size-1, self.size, -self.size-1, -self.size-1) + \
-                                "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='bedrock'/>".format(-self.size-1, self.size, self.size, self.size) + \
-                                "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='bedrock'/>".format(-self.size-1, -self.size-1, -self.size-1, self.size) + \
-                                "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='bedrock'/>".format(self.size, self.size, -self.size-1, self.size) + \
+                                "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, self.size, -self.size-1, -self.size-1) + \
+                                "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, self.size, self.size, self.size) + \
+                                "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, -self.size-1, -self.size-1, self.size) + \
+                                "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(self.size, self.size, -self.size-1, self.size) + \
+                                "<DrawCuboid x1='{}' x2='{}' y1='3' y2='3' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, self.size, -self.size-1, -self.size-1) + \
+                                "<DrawCuboid x1='{}' x2='{}' y1='3' y2='3' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, self.size, self.size, self.size) + \
+                                "<DrawCuboid x1='{}' x2='{}' y1='3' y2='3' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, -self.size-1, -self.size-1, self.size) + \
+                                "<DrawCuboid x1='{}' x2='{}' y1='3' y2='3' z1='{}' z2='{}' type='stone'/>".format(self.size, self.size, -self.size-1, self.size) + \
                                 xml + \
                                 '''<DrawBlock x='0'  y='2' z='0' type='air' />
                                 <DrawBlock x='0'  y='1' z='0' type='stone' />
@@ -216,7 +220,7 @@ class ResourceCollector(gym.Env):
                     <AgentSection mode="Survival">
                         <Name>SpeedMiner</Name>
                         <AgentStart>
-                            <Placement x="0.5" y="2" z="0.5" pitch="45" yaw="0"/>
+                            <Placement x="0.5" y="2" z="0.5" pitch="60" yaw="0"/>
                             <Inventory>
                                 <InventoryItem slot="0" type="diamond_pickaxe"/>
                             </Inventory>
