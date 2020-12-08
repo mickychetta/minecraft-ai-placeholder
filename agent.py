@@ -21,7 +21,7 @@ class ResourceCollector(gym.Env):
 
     def __init__(self, env_config):  
         # Static Parameters
-        self.size = 3
+        self.size = 10
         self.reward_density = .1
         self.penalty_density = .02
         self.obs_size = 5
@@ -174,10 +174,82 @@ class ResourceCollector(gym.Env):
             z = randint(-self.size, self.size)
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='gold_ore' />".format(x, z)
 
-        for _ in range(int(self.max_episode_steps * 0.03)):
+        for _ in range(int(self.max_episode_steps * 0.02)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='diamond_ore' />".format(x, z)
+
+        # Lava
+        # for _ in range(int(self.max_episode_steps * 0.02)):
+        #     x = randint(-self.size, self.size)
+        #     z = randint(-self.size, self.size)
+        #     xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z)
+        #     xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x - 1, z + 1)
+        #     xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z + 1)
+        #     xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x + 1, z + 1)
+        #     xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x - 1, z)
+        #     xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x + 1, z)
+        #     xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x - 1, z - 1)
+        #     xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z - 1)
+        #     xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x + 1, z - 1) 
+        #     # xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x - 1, z - 2)
+        #     # xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z - 2)
+        #     # xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x + 1, z - 2)
+        #     # xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x + 3, z - 1)
+        #     # xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x + 2, z - 1)
+        #     # xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x + 2, z)
+        #     # xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x + 3, z - 1)
+        #     # xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x + 3, z)
+
+        for _ in range(int(self.max_episode_steps * 0.02)):
+            x = randint(-self.size, self.size)
+            z = randint(-self.size, self.size)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x-1, z+1)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z+1)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x+1, z+1)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x-1, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x-1, z-1)
+
+        for _ in range(int(self.max_episode_steps * 0.02)):
+            x = randint(-self.size, self.size)
+            z = randint(-self.size, self.size)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z)
+
+        for _ in range(int(self.max_episode_steps * 0.1)):
+            x = randint(-self.size, self.size)
+            z = randint(-self.size, self.size)
+            xml += "<DrawBlock x='{}'  y='2' z='{}' type='web' />".format(x, z)
+
+        for _ in range(int(self.max_episode_steps * 0.01)):
+            x = randint(-self.size, self.size)
+            z = randint(-self.size, self.size)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x-1, z+1)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z+1)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x+1, z+1)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x-1, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x-1, z-1)
+
+        for _ in range(int(self.max_episode_steps * 0.02)):
+            x = randint(-self.size, self.size)
+            z = randint(-self.size, self.size)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z+1)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x-1, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x+1, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z-1)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z-2)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z)
+        
+
+        # # Flowing Lava
+        # for _ in range(int(self.max_episode_steps * 0.01)):
+        #     x = randint(-self.size, self.size)
+        #     z = randint(-self.size, self.size)
+        #     xml += "<DrawBlock x='{}'  y='2' z='{}' type='flowing_lava' />".format(x, z)
     
 
         return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
@@ -205,10 +277,10 @@ class ResourceCollector(gym.Env):
                                 "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, self.size, self.size, self.size) + \
                                 "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, -self.size-1, -self.size-1, self.size) + \
                                 "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(self.size, self.size, -self.size-1, self.size) + \
-                                "<DrawCuboid x1='{}' x2='{}' y1='3' y2='3' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, self.size, -self.size-1, -self.size-1) + \
-                                "<DrawCuboid x1='{}' x2='{}' y1='3' y2='3' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, self.size, self.size, self.size) + \
-                                "<DrawCuboid x1='{}' x2='{}' y1='3' y2='3' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, -self.size-1, -self.size-1, self.size) + \
-                                "<DrawCuboid x1='{}' x2='{}' y1='3' y2='3' z1='{}' z2='{}' type='stone'/>".format(self.size, self.size, -self.size-1, self.size) + \
+                                "<DrawCuboid x1='{}' x2='{}' y1='3' y2='6' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, self.size, -self.size-1, -self.size-1) + \
+                                "<DrawCuboid x1='{}' x2='{}' y1='3' y2='6' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, self.size, self.size, self.size) + \
+                                "<DrawCuboid x1='{}' x2='{}' y1='3' y2='6' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, -self.size-1, -self.size-1, self.size) + \
+                                "<DrawCuboid x1='{}' x2='{}' y1='3' y2='6' z1='{}' z2='{}' type='stone'/>".format(self.size, self.size, -self.size-1, self.size) + \
                                 xml + \
                                 '''<DrawBlock x='0'  y='2' z='0' type='air' />
                                 <DrawBlock x='0'  y='1' z='0' type='stone' />
