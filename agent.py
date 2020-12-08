@@ -12,14 +12,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy.random import randint
 
-import gym, ray
+import gym
+import ray
 from gym.spaces import Discrete, Box
 from ray.rllib.agents import ppo
 
 
 class ResourceCollector(gym.Env):
 
-    def __init__(self, env_config):  
+    def __init__(self, env_config):
         # Static Parameters
         self.size = 10
         self.reward_density = .1
@@ -45,12 +46,13 @@ class ResourceCollector(gym.Env):
 
         # Rllib Parameters
         self.action_space = Discrete(len(self.action_dict))
-        self.observation_space = Box(0, 7, shape=(np.prod([2, self.obs_size, self.obs_size]), ), dtype=np.int32)
+        self.observation_space = Box(0, 7, shape=(
+            np.prod([2, self.obs_size, self.obs_size]), ), dtype=np.int32)
 
         # Malmo Parameters
         self.agent_host = MalmoPython.AgentHost()
         try:
-            self.agent_host.parse( sys.argv )
+            self.agent_host.parse(sys.argv)
         except RuntimeError as e:
             print('ERROR:', e)
             print(self.agent_host.getUsage())
@@ -86,7 +88,7 @@ class ResourceCollector(gym.Env):
 
         # Log
         if len(self.returns) > self.log_frequency and \
-            len(self.returns) % self.log_frequency == 0:
+                len(self.returns) % self.log_frequency == 0:
             self.log_returns()
 
         # Get Observation
@@ -111,13 +113,14 @@ class ResourceCollector(gym.Env):
         # Get Action
         command = self.action_dict[action]
         # allow if there is a block we want to mine in the ground in front of the agent (y=1)
-        allow_break_action = self.obs[0, int(self.obs_size/2)-1, int(self.obs_size/2)] > 0
+        allow_break_action = self.obs[0, int(
+            self.obs_size/2)-1, int(self.obs_size/2)] > 0
         if command != 'attack 1' or allow_break_action:
             self.agent_host.sendCommand(command)
             time.sleep(.1)
             self.episode_step += 1
             self.episode_end = time.time()
-        
+
         # Get Done
         # Done is true if we reach max # of steps
         done = False
@@ -129,7 +132,7 @@ class ResourceCollector(gym.Env):
         world_state = self.agent_host.getWorldState()
         for error in world_state.errors:
             print("Error:", error.text)
-        self.obs = self.get_observation(world_state) 
+        self.obs = self.get_observation(world_state)
 
         # Get Reward
         reward = 0
@@ -143,108 +146,134 @@ class ResourceCollector(gym.Env):
     def get_mission_xml(self):
         xml = ""
 
+        # Ores
         for _ in range(int(self.max_episode_steps * 0.25)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='redstone_ore' />".format(x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='redstone_ore' />".format(
+                x, z)
 
         for _ in range(int(self.max_episode_steps * 0.17)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='coal_ore' />".format(x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='coal_ore' />".format(
+                x, z)
 
         for _ in range(int(self.max_episode_steps * 0.13)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='emerald_ore' />".format(x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='emerald_ore' />".format(
+                x, z)
 
         for _ in range(int(self.max_episode_steps * 0.1)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='iron_ore' />".format(x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='iron_ore' />".format(
+                x, z)
 
         for _ in range(int(self.max_episode_steps * 0.07)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='gold_ore' />".format(x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='gold_ore' />".format(
+                x, z)
 
         for _ in range(int(self.max_episode_steps * 0.02)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='diamond_ore' />".format(x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='diamond_ore' />".format(
+                x, z)
 
         # Lava
-        # for _ in range(int(self.max_episode_steps * 0.02)):
-        #     x = randint(-self.size, self.size)
-        #     z = randint(-self.size, self.size)
-        #     xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z)
-        #     xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x - 1, z + 1)
-        #     xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z + 1)
-        #     xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x + 1, z + 1)
-        #     xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x - 1, z)
-        #     xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x + 1, z)
-        #     xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x - 1, z - 1)
-        #     xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z - 1)
-        #     xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x + 1, z - 1) 
-        #     # xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x - 1, z - 2)
-        #     # xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z - 2)
-        #     # xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x + 1, z - 2)
-        #     # xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x + 3, z - 1)
-        #     # xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x + 2, z - 1)
-        #     # xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x + 2, z)
-        #     # xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x + 3, z - 1)
-        #     # xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x + 3, z)
-
         for _ in range(int(self.max_episode_steps * 0.02)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x-1, z+1)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z+1)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x+1, z+1)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x-1, z)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x-1, z-1)
-
-        for _ in range(int(self.max_episode_steps * 0.02)):
-            x = randint(-self.size, self.size)
-            z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z)
-
-        for _ in range(int(self.max_episode_steps * 0.1)):
-            x = randint(-self.size, self.size)
-            z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='2' z='{}' type='web' />".format(x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
+                x-1, z+1)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
+                x, z+1)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
+                x+1, z+1)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
+                x-1, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
+                x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
+                x-1, z-1)
 
         for _ in range(int(self.max_episode_steps * 0.01)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x-1, z+1)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z+1)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x+1, z+1)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x-1, z)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x-1, z-1)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
+                x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
+                x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
+                x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
+                x, z)
 
-        for _ in range(int(self.max_episode_steps * 0.02)):
+        for _ in range(int(self.max_episode_steps * 0.01)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z+1)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x-1, z)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x+1, z)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z-1)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z-2)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(x, z)
-        
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
+                x-1, z+1)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
+                x, z+1)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
+                x+1, z+1)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
+                x-1, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
+                x, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
+                x-1, z-1)
 
-        # # Flowing Lava
-        # for _ in range(int(self.max_episode_steps * 0.01)):
-        #     x = randint(-self.size, self.size)
-        #     z = randint(-self.size, self.size)
-        #     xml += "<DrawBlock x='{}'  y='2' z='{}' type='flowing_lava' />".format(x, z)
-    
+        for _ in range(int(self.max_episode_steps * 0.01)):
+            x = randint(-self.size, self.size)
+            z = randint(-self.size, self.size)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
+                x, z+1)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
+                x-1, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
+                x+1, z)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
+                x, z-1)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
+                x, z-2)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
+                x, z)
+
+        for _ in range(int(self.max_episode_steps * 0.08)):
+            x = randint(-self.size, self.size)
+            z = randint(-self.size, self.size)
+            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
+                x, z)
+
+        # Web
+        for _ in range(int(self.max_episode_steps * 0.05)):
+            x = randint(-self.size, self.size)
+            z = randint(-self.size, self.size)
+            xml += "<DrawBlock x='{}'  y='2' z='{}' type='web' />".format(x, z)
+
+        # Vine
+        for _ in range(int(self.max_episode_steps * 0.09)):
+            x = randint(-self.size, self.size)
+            z = randint(-self.size, self.size)
+            xml += "<DrawBlock x='{}' y='1' z='{}' type='vine' />".format(x, z)
+
+        # Rail
+        for _ in range(int(self.max_episode_steps * 0.1)):
+            x = randint(-self.size, self.size)
+            z = randint(-self.size, self.size)
+            xml += "<DrawBlock x='{}' y='2' z='{}' type='rail' />".format(x, z)
+
+        # Gravel
+        for _ in range(int(self.max_episode_steps * 0.3)):
+            x = randint(-self.size, self.size)
+            z = randint(-self.size, self.size)
+            xml += "<DrawBlock x='{}' y='1' z='{}' type='gravel' />".format(
+                x, z)
 
         return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                 <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -264,19 +293,19 @@ class ResourceCollector(gym.Env):
                         <ServerHandlers>
                             <FlatWorldGenerator generatorString="3;7,2;21;"/>
                             <DrawingDecorator>''' + \
-                                "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='air'/>".format(-self.size, self.size, -self.size, self.size) + \
-                                "<DrawCuboid x1='{}' x2='{}' y1='1' y2='1' z1='{}' z2='{}' type='stone'/>".format(-self.size, self.size, -self.size, self.size) + \
-                                "<DrawCuboid x1='{}' x2='{}' y1='0' y2='-5' z1='{}' z2='{}' type='bedrock'/>".format(-self.size, self.size, -self.size, self.size) + \
-                                "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, self.size, -self.size-1, -self.size-1) + \
-                                "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, self.size, self.size, self.size) + \
-                                "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, -self.size-1, -self.size-1, self.size) + \
-                                "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(self.size, self.size, -self.size-1, self.size) + \
-                                "<DrawCuboid x1='{}' x2='{}' y1='3' y2='6' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, self.size, -self.size-1, -self.size-1) + \
-                                "<DrawCuboid x1='{}' x2='{}' y1='3' y2='6' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, self.size, self.size, self.size) + \
-                                "<DrawCuboid x1='{}' x2='{}' y1='3' y2='6' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, -self.size-1, -self.size-1, self.size) + \
-                                "<DrawCuboid x1='{}' x2='{}' y1='3' y2='6' z1='{}' z2='{}' type='stone'/>".format(self.size, self.size, -self.size-1, self.size) + \
-                                xml + \
-                                '''<DrawBlock x='0'  y='2' z='0' type='air' />
+            "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='air'/>".format(-self.size, self.size, -self.size, self.size) + \
+            "<DrawCuboid x1='{}' x2='{}' y1='1' y2='1' z1='{}' z2='{}' type='stone'/>".format(-self.size, self.size, -self.size, self.size) + \
+            "<DrawCuboid x1='{}' x2='{}' y1='0' y2='-5' z1='{}' z2='{}' type='bedrock'/>".format(-self.size, self.size, -self.size, self.size) + \
+            "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, self.size, -self.size-1, -self.size-1) + \
+            "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, self.size, self.size, self.size) + \
+            "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, -self.size-1, -self.size-1, self.size) + \
+            "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(self.size, self.size, -self.size-1, self.size) + \
+            "<DrawCuboid x1='{}' x2='{}' y1='3' y2='6' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, self.size, -self.size-1, -self.size-1) + \
+            "<DrawCuboid x1='{}' x2='{}' y1='3' y2='6' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, self.size, self.size, self.size) + \
+            "<DrawCuboid x1='{}' x2='{}' y1='3' y2='6' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, -self.size-1, -self.size-1, self.size) + \
+            "<DrawCuboid x1='{}' x2='{}' y1='3' y2='6' z1='{}' z2='{}' type='stone'/>".format(self.size, self.size, -self.size-1, self.size) + \
+            xml + \
+            '''<DrawBlock x='0'  y='2' z='0' type='air' />
                                 <DrawBlock x='0'  y='1' z='0' type='stone' />
                             </DrawingDecorator>
                             <ServerQuitWhenAnyAgentFinishes/>
@@ -327,11 +356,13 @@ class ResourceCollector(gym.Env):
 
         max_retries = 3
         my_clients = MalmoPython.ClientPool()
-        my_clients.add(MalmoPython.ClientInfo('127.0.0.1', 10000)) # add Minecraft machines here as available
+        # add Minecraft machines here as available
+        my_clients.add(MalmoPython.ClientInfo('127.0.0.1', 10000))
 
         for retry in range(max_retries):
             try:
-                self.agent_host.startMission( my_mission, my_clients, my_mission_record, 0, 'ResourceCollector' )
+                self.agent_host.startMission(
+                    my_mission, my_clients, my_mission_record, 0, 'ResourceCollector')
                 break
             except RuntimeError as e:
                 if retry == max_retries - 1:
@@ -339,7 +370,7 @@ class ResourceCollector(gym.Env):
                     exit(1)
                 else:
                     time.sleep(2)
- 
+
         world_state = self.agent_host.getWorldState()
         while not world_state.has_mission_begun:
             time.sleep(0.1)
@@ -375,8 +406,10 @@ class ResourceCollector(gym.Env):
 
                 # Get observation
                 grid = observations['floorAll']
-                grid_translated = [self.blocks_dict[x] if x in self.blocks_dict else 0 for x in grid]
-                obs = np.reshape(grid_translated, (2, self.obs_size, self.obs_size))
+                grid_translated = [self.blocks_dict[x]
+                                   if x in self.blocks_dict else 0 for x in grid]
+                obs = np.reshape(
+                    grid_translated, (2, self.obs_size, self.obs_size))
 
                 # Rotate observation with orientation of agent
                 yaw = observations['Yaw']
@@ -386,7 +419,7 @@ class ResourceCollector(gym.Env):
                     obs = np.rot90(obs, k=2, axes=(1, 2))
                 elif yaw == 90:
                     obs = np.rot90(obs, k=3, axes=(1, 2))
-                
+
                 break
 
         return obs
@@ -410,7 +443,7 @@ class ResourceCollector(gym.Env):
 
         with open('returns.txt', 'w') as f:
             for step, value in zip(self.steps, self.returns):
-                f.write("{}\t{}\n".format(step, value)) 
+                f.write("{}\t{}\n".format(step, value))
 
 
 if __name__ == '__main__':
