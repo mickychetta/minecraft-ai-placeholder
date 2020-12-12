@@ -58,9 +58,12 @@ class ResourceCollector(gym.Env):
 
         # ResourceCollector Parameters
         self.obs = None
+        self.obsdict = None # Stores last json loaded observation
         self.episode_step = 0
         self.episode_return = 0
+        self.episode_diamonds = 0
         self.returns = []
+        self.diamonds_collected = []
         self.steps = []
         self.episode_start = time.time()
         self.episode_end = time.time()
@@ -72,14 +75,27 @@ class ResourceCollector(gym.Env):
         Returns
             observation: <np.array> flattened initial obseravtion
         """
+        # Get amount of diamonds collected
+        if self.episode_step > 0:
+            for i in range(0,39):
+                key = 'InventorySlot_'+str(i)+'_item'
+                if key in self.obsdict:
+                    item = self.obsdict[key]
+                    if item == 'diamond':
+                        self.episode_diamonds = int(self.obsdict[u'InventorySlot_'+str(i)+'_size'])
+                        print("Diamonds collected this episode:", self.episode_diamonds)
+                        break;
+        
         # Reset Malmo
         world_state = self.init_malmo()
 
         # Reset Variables
         self.returns.append(self.episode_return)
+        self.diamonds_collected.append(self.episode_diamonds)
         current_step = self.steps[-1] if len(self.steps) > 0 else 0
         self.steps.append(current_step + self.episode_step)
         self.episode_return = 0
+        self.episode_diamonds = 0
         self.episode_step = 0
         self.episode_start = time.time()
         self.episode_end = time.time()
@@ -88,6 +104,7 @@ class ResourceCollector(gym.Env):
         if len(self.returns) > self.log_frequency and \
             len(self.returns) % self.log_frequency == 0:
             self.log_returns()
+            self.log_diamonds_collected()
 
         # Get Observation
         self.obs = self.get_observation(world_state)
@@ -136,7 +153,7 @@ class ResourceCollector(gym.Env):
         for r in world_state.rewards:
             reward += r.getValue()
         self.episode_return += reward
-        print("Current reward:", self.episode_return)
+        #print("Current reward:", self.episode_return)
 
         return self.obs.flatten(), reward, done, dict()
 
@@ -221,6 +238,7 @@ class ResourceCollector(gym.Env):
                         </AgentStart>
                         <AgentHandlers>
                             <DiscreteMovementCommands/>
+                            <ObservationFromFullInventory/>
                             <ObservationFromFullStats/>
                             <ObservationFromGrid>
                                 <Grid name="floorAll">
@@ -300,6 +318,7 @@ class ResourceCollector(gym.Env):
                 # First we get the json from the observation API
                 msg = world_state.observations[-1].text
                 observations = json.loads(msg)
+                self.obsdict = observations
 
                 # Get observation
                 grid = observations['floorAll']
@@ -338,7 +357,24 @@ class ResourceCollector(gym.Env):
 
         with open('returns.txt', 'w') as f:
             for step, value in zip(self.steps, self.returns):
-                f.write("{}\t{}\n".format(step, value)) 
+                f.write("{}\t{}\n".format(step, value))
+
+    def log_diamonds_collected(self):
+        """
+        Log the current diamonds collected as a graph and text file
+        """
+        box = np.ones(self.log_frequency) / self.log_frequency
+        diamonds_smooth = np.convolve(self.diamonds_collected, box, mode='same')
+        plt.clf()
+        plt.plot(self.steps, diamonds_smooth)
+        plt.title('Diamonds Collected Per Episode')
+        plt.ylabel('Diamonds')
+        plt.xlabel('Steps')
+        plt.savefig('diamonds.png')
+
+        with open('diamonds.txt', 'w') as f:
+            for step, value in zip(self.steps, self.diamonds_collected):
+                f.write("{}\t{}\n".format(step, value))
 
 
 if __name__ == '__main__':
