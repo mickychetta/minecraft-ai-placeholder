@@ -204,18 +204,6 @@ class ResourceCollector(gym.Env):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
-                x, z)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
-                x, z)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
-                x, z)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
-                x, z)
-
-        for _ in range(int(self.max_episode_steps * 0.01)):
-            x = randint(-self.size, self.size)
-            z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
                 x-1, z+1)
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
                 x, z+1)
@@ -262,11 +250,11 @@ class ResourceCollector(gym.Env):
             z = randint(-self.size, self.size)
             xml += "<DrawBlock x='{}' y='1' z='{}' type='vine' />".format(x, z)
 
-        # Rail
+        # Air
         for _ in range(int(self.max_episode_steps * 0.1)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}' y='2' z='{}' type='rail' />".format(x, z)
+            xml += "<DrawBlock x='{}' y='2' z='{}' type='air' />".format(x, z)
 
         # Gravel
         for _ in range(int(self.max_episode_steps * 0.3)):
