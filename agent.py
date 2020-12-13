@@ -61,9 +61,15 @@ class ResourceCollector(gym.Env):
         self.obsdict = None # Stores last json loaded observation
         self.episode_step = 0
         self.episode_return = 0
-        self.episode_diamonds = 0
         self.returns = []
-        self.diamonds_collected = []
+        self.resources_collected = {
+            "diamond": [0],
+            "redstone": [0],
+            "coal": [0],
+            "emerald": [0],
+            "iron_ore": [0],
+            "gold_ore": [0]
+        }
         self.steps = []
         self.episode_start = time.time()
         self.episode_end = time.time()
@@ -75,27 +81,32 @@ class ResourceCollector(gym.Env):
         Returns
             observation: <np.array> flattened initial obseravtion
         """
-        # Get amount of diamonds collected
+        # Get amount of resources collected
         if self.episode_step > 0:
+            resrcs = set(self.resources_collected.keys())
             for i in range(0,39):
                 key = 'InventorySlot_'+str(i)+'_item'
                 if key in self.obsdict:
-                    item = self.obsdict[key]
-                    if item == 'diamond':
-                        self.episode_diamonds = int(self.obsdict[u'InventorySlot_'+str(i)+'_size'])
-                        print("Diamonds collected this episode:", self.episode_diamonds)
-                        break;
+                    item = self.obsdict[key] 
+                    if item in self.resources_collected:
+                        self.resources_collected[item].append(int(self.obsdict[u'InventorySlot_'+str(i)+'_size']))
+                        resrcs.remove(item)
+                if len(resrcs) == 0:
+                    break
+
+            # Add 0 for resources not found
+            for r in resrcs:
+                self.resources_collected[r].append(0)
         
         # Reset Malmo
         world_state = self.init_malmo()
 
         # Reset Variables
         self.returns.append(self.episode_return)
-        self.diamonds_collected.append(self.episode_diamonds)
         current_step = self.steps[-1] if len(self.steps) > 0 else 0
         self.steps.append(current_step + self.episode_step)
+        print("Starting episode", len(self.steps))
         self.episode_return = 0
-        self.episode_diamonds = 0
         self.episode_step = 0
         self.episode_start = time.time()
         self.episode_end = time.time()
@@ -104,7 +115,7 @@ class ResourceCollector(gym.Env):
         if len(self.returns) > self.log_frequency and \
             len(self.returns) % self.log_frequency == 0:
             self.log_returns()
-            self.log_diamonds_collected()
+            self.log_resources_collected()
 
         # Get Observation
         self.obs = self.get_observation(world_state)
@@ -350,7 +361,7 @@ class ResourceCollector(gym.Env):
         returns_smooth = np.convolve(self.returns, box, mode='same')
         plt.clf()
         plt.plot(self.steps, returns_smooth)
-        plt.title('Resource Gatherer')
+        plt.title('Episode Reward Return')
         plt.ylabel('Return')
         plt.xlabel('Steps')
         plt.savefig('returns.png')
@@ -359,22 +370,52 @@ class ResourceCollector(gym.Env):
             for step, value in zip(self.steps, self.returns):
                 f.write("{}\t{}\n".format(step, value))
 
-    def log_diamonds_collected(self):
+    def log_resources_collected(self):
         """
-        Log the current diamonds collected as a graph and text file
+        Log the current resources collected as a graph and text file
         """
-        box = np.ones(self.log_frequency) / self.log_frequency
-        diamonds_smooth = np.convolve(self.diamonds_collected, box, mode='same')
         plt.clf()
-        plt.plot(self.steps, diamonds_smooth)
-        plt.title('Diamonds Collected Per Episode')
-        plt.ylabel('Diamonds')
-        plt.xlabel('Steps')
-        plt.savefig('diamonds.png')
+        fig, axs = plt.subplots(3, 2, sharex=True)
+        fig.suptitle('Resources Mined By Agent')
+        plt.rc('font', size=8)
+        
+        box = np.ones(self.log_frequency) / self.log_frequency
+        
+        resrc_smooth = np.convolve(self.resources_collected['diamond'], box, mode='same')
+        axs[0][0].plot(self.steps, resrc_smooth, color='skyblue')
+        axs[0][0].set_title('Diamond')
 
-        with open('diamonds.txt', 'w') as f:
-            for step, value in zip(self.steps, self.diamonds_collected):
-                f.write("{}\t{}\n".format(step, value))
+        resrc_smooth = np.convolve(self.resources_collected['gold_ore'], box, mode='same')
+        axs[0][1].plot(self.steps, resrc_smooth, color='gold')
+        axs[0][1].set_title('Gold Ore')
+
+        resrc_smooth = np.convolve(self.resources_collected['iron_ore'], box, mode='same')
+        axs[1][0].plot(self.steps, resrc_smooth, color='gray')
+        axs[1][0].set_title('Iron Ore')
+
+        resrc_smooth = np.convolve(self.resources_collected['emerald'], box, mode='same')
+        axs[1][1].plot(self.steps, resrc_smooth, color='mediumaquamarine')
+        axs[1][1].set_title('Emerald')
+
+        resrc_smooth = np.convolve(self.resources_collected['coal'], box, mode='same')
+        axs[2][0].plot(self.steps, resrc_smooth, color='black')
+        axs[2][0].set_title('Coal')
+
+        resrc_smooth = np.convolve(self.resources_collected['redstone'], box, mode='same')
+        axs[2][1].plot(self.steps, resrc_smooth, color='firebrick')
+        axs[2][1].set_title('Redstone')
+
+        for ax in axs.flat:
+            ax.set(xlabel='Steps', ylabel='Amt Mined Per Episode')
+
+        # Hide x labels and tick labels for top plots and y ticks for right plots.
+        for ax in axs.flat:
+            ax.label_outer()
+
+        plt.tight_layout()
+
+        plt.savefig('resources.png')
+
 
 
 if __name__ == '__main__':
