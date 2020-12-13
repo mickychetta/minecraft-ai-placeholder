@@ -244,17 +244,17 @@ class ResourceCollector(gym.Env):
             z = randint(-self.size, self.size)
             xml += "<DrawBlock x='{}'  y='2' z='{}' type='web' />".format(x, z)
 
-        # Vine
+        # Air
         for _ in range(int(self.max_episode_steps * 0.09)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}' y='1' z='{}' type='vine' />".format(x, z)
+            xml += "<DrawBlock x='{}' y='1' z='{}' type='air' />".format(x, z)
 
-        # Air
+        # Rail
         for _ in range(int(self.max_episode_steps * 0.1)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}' y='2' z='{}' type='air' />".format(x, z)
+            xml += "<DrawBlock x='{}' y='2' z='{}' type='rail' />".format(x, z)
 
         # Gravel
         for _ in range(int(self.max_episode_steps * 0.3)):
