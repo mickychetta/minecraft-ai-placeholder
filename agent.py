@@ -161,6 +161,8 @@ class ResourceCollector(gym.Env):
         # Done is also true if lava is stepped into
         if (self.obs[0, int(self.obs_size/2)-1, int(self.obs_size/2)] == -1 and (command == 'move 1' or command == 'jumpmove 1')):
             done = True
+            time.sleep(2)
+
 
         # Get Observation
         world_state = self.agent_host.getWorldState()
