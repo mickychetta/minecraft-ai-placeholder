@@ -157,9 +157,8 @@ class ResourceCollector(gym.Env):
         if self.episode_end - self.episode_start >= 30.0:
             done = True
             time.sleep(2)
-                    
         # Done is also true if lava is stepped into
-        if (self.obs[0, int(self.obs_size/2)-1, int(self.obs_size/2)] == -1 and (command == 'move 1' or command == 'jumpmove 1')):
+        elif (self.obs[0, int(self.obs_size/2)-1, int(self.obs_size/2)] == -1 and (command == 'move 1' or command == 'jumpmove 1')):
             done = True
             time.sleep(2)
 
