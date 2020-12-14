@@ -362,8 +362,8 @@ class ResourceCollector(gym.Env):
                             </RewardForCollectingItem>
                             <RewardForTouchingBlockType>
                                 <Block type="bedrock" reward="-1" />
-                                <Block type="lava" reward="-1" />
-                                <Block type="flowing_lava" reward="-1" />
+                                <Block type="lava" reward="-5" />
+                                <Block type="flowing_lava" reward="-5" />
                             </RewardForTouchingBlockType>
                             <AgentQuitFromTimeUp timeLimitMs="'''+str(30000)+'''" />
                             <AgentQuitFromTouchingBlockType>
