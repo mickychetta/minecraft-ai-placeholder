@@ -42,11 +42,13 @@ class ResourceCollector(gym.Env):
             "iron_ore": 4,
             "gold_ore": 5,
             "diamond_ore": 6
+            "lava": -1,
+            "flowing_lava": -1
         }
 
         # Rllib Parameters
         self.action_space = Discrete(len(self.action_dict))
-        self.observation_space = Box(0, 7, shape=(
+        self.observation_space = Box(-1, 6, shape=(
             np.prod([2, self.obs_size, self.obs_size]), ), dtype=np.int32)
 
         # Malmo Parameters
@@ -150,11 +152,15 @@ class ResourceCollector(gym.Env):
             self.episode_end = time.time()
 
         # Get Done
-        # Done is true if we reach max # of steps
+        # Done is true if we reach time limit
         done = False
         if self.episode_end - self.episode_start >= 30.0:
             done = True
             time.sleep(2)
+                    
+        # Done is also true if lava is stepped into
+        if (self.obs[0, int(self.obs_size/2)-1, int(self.obs_size/2)] == -1 and (command == 'move 1' or command == 'jumpmove 1')):
+            done = True
 
         # Get Observation
         world_state = self.agent_host.getWorldState()
@@ -358,6 +364,10 @@ class ResourceCollector(gym.Env):
                                 <Block type="bedrock" reward="-1" />
                             </RewardForTouchingBlockType>
                             <AgentQuitFromTimeUp timeLimitMs="'''+str(30000)+'''" />
+                            <AgentQuitFromTouchingBlockType>
+                                <Block type="lava" />
+                                <Block type="flowing_lava" />
+                            </AgentQuitFromTouchingBlockType>
                         </AgentHandlers>
                     </AgentSection>
                 </Mission>'''
