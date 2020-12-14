@@ -163,7 +163,6 @@ class ResourceCollector(gym.Env):
             done = True
             time.sleep(2)
 
-
         # Get Observation
         world_state = self.agent_host.getWorldState()
         for error in world_state.errors:
