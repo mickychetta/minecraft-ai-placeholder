@@ -43,7 +43,6 @@ class ResourceCollector(gym.Env):
             "gold_ore": 5,
             "diamond_ore": 6,
             "lava": -1,
-            "flowing_lava": -1
         }
 
         # Rllib Parameters
@@ -351,12 +350,10 @@ class ResourceCollector(gym.Env):
                             <RewardForTouchingBlockType>
                                 <Block type="bedrock" reward="-1" />
                                 <Block type="lava" reward="-5" />
-                                <Block type="flowing_lava" reward="-5" />
                             </RewardForTouchingBlockType>
                             <AgentQuitFromTimeUp timeLimitMs="'''+str(30000)+'''" />
                             <AgentQuitFromTouchingBlockType>
                                 <Block type="lava" />
-                                <Block type="flowing_lava" />
                             </AgentQuitFromTouchingBlockType>
                         </AgentHandlers>
                     </AgentSection>

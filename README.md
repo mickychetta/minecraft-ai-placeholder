@@ -28,8 +28,7 @@ self.blocks_dict = {
             "iron_ore": 5,
             "gold_ore": 6,
             "diamond_ore": 7,
-            "lava": -1,
-            "flowing_lava" -1
+            "lava": -1
         }
 ```
 
