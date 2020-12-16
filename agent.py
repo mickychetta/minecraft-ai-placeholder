@@ -26,7 +26,7 @@ class ResourceCollector(gym.Env):
         self.reward_density = .1
         self.penalty_density = .02
         self.obs_size = 5
-        self.max_episode_steps = self.size ** 2
+        self.max_global_steps = (self.size * 2) ** 2
         self.log_frequency = 10
         self.action_dict = {
             0: 'move 1',  # Move one block forward
@@ -181,44 +181,44 @@ class ResourceCollector(gym.Env):
         xml = ""
 
         # Ores
-        for _ in range(int(self.max_episode_steps * 0.25)):
+        for _ in range(int(self.max_global_steps * 0.25)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='redstone_ore' />".format(
                 x, z)
 
-        for _ in range(int(self.max_episode_steps * 0.17)):
+        for _ in range(int(self.max_global_steps * 0.17)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='coal_ore' />".format(
                 x, z)
 
-        for _ in range(int(self.max_episode_steps * 0.13)):
+        for _ in range(int(self.max_global_steps * 0.13)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='emerald_ore' />".format(
                 x, z)
 
-        for _ in range(int(self.max_episode_steps * 0.1)):
+        for _ in range(int(self.max_global_steps * 0.1)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='iron_ore' />".format(
                 x, z)
 
-        for _ in range(int(self.max_episode_steps * 0.07)):
+        for _ in range(int(self.max_global_steps * 0.07)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='gold_ore' />".format(
                 x, z)
 
-        for _ in range(int(self.max_episode_steps * 0.02)):
+        for _ in range(int(self.max_global_steps * 0.02)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='diamond_ore' />".format(
                 x, z)
 
         # Lava
-        for _ in range(int(self.max_episode_steps * 0.02)):
+        for _ in range(int(self.max_global_steps * 0.007)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
@@ -234,7 +234,7 @@ class ResourceCollector(gym.Env):
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
                 x-1, z-1)
 
-        for _ in range(int(self.max_episode_steps * 0.01)):
+        for _ in range(int(self.max_global_steps * 0.005)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
@@ -250,7 +250,7 @@ class ResourceCollector(gym.Env):
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
                 x-1, z-1)
 
-        for _ in range(int(self.max_episode_steps * 0.01)):
+        for _ in range(int(self.max_global_steps * 0.005)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
@@ -266,33 +266,26 @@ class ResourceCollector(gym.Env):
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
                 x, z)
 
-        for _ in range(int(self.max_episode_steps * 0.08)):
+        for _ in range(int(self.max_global_steps * 0.01)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
                 x, z)
 
-        # Flowing Lava
-        for _ in range(int(self.max_episode_steps * 0.02)):
-            x = randint(-self.size, self.size)
-            z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='2' z='{}' type='flowing_lava' />".format(
-                x, z)
-
         # Air
-        for _ in range(int(self.max_episode_steps * 0.09)):
+        for _ in range(int(self.max_global_steps * 0.09)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
             xml += "<DrawBlock x='{}' y='1' z='{}' type='air' />".format(x, z)
 
         # Rail
-        for _ in range(int(self.max_episode_steps * 0.1)):
+        for _ in range(int(self.max_global_steps * 0.1)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
             xml += "<DrawBlock x='{}' y='2' z='{}' type='rail' />".format(x, z)
 
         # Gravel
-        for _ in range(int(self.max_episode_steps * 0.3)):
+        for _ in range(int(self.max_global_steps * 0.3)):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
             xml += "<DrawBlock x='{}' y='1' z='{}' type='gravel' />".format(
