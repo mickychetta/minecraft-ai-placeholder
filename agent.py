@@ -26,7 +26,7 @@ class ResourceCollector(gym.Env):
         self.reward_density = .1
         self.penalty_density = .02
         self.obs_size = 5
-        self.max_episode_steps = 100
+        self.max_episode_steps = self.size ** 2
         self.log_frequency = 10
         self.action_dict = {
             0: 'move 1',  # Move one block forward
@@ -41,7 +41,7 @@ class ResourceCollector(gym.Env):
             "emerald_ore": 3,
             "iron_ore": 4,
             "gold_ore": 5,
-            "diamond_ore": 6
+            "diamond_ore": 6,
             "lava": -1,
             "flowing_lava": -1
         }
@@ -270,6 +270,13 @@ class ResourceCollector(gym.Env):
             x = randint(-self.size, self.size)
             z = randint(-self.size, self.size)
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
+                x, z)
+
+        # Flowing Lava
+        for _ in range(int(self.max_episode_steps * 0.02)):
+            x = randint(-self.size, self.size)
+            z = randint(-self.size, self.size)
+            xml += "<DrawBlock x='{}'  y='2' z='{}' type='flowing_lava' />".format(
                 x, z)
 
         # Air
