@@ -243,12 +243,6 @@ class ResourceCollector(gym.Env):
                 x, z+1)
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
                 x+1, z+1)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
-                x-1, z)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
-                x, z)
-            xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
-                x-1, z-1)
 
         for _ in range(int(self.max_global_steps * 0.005)):
             x = randint(-self.size, self.size)
