@@ -27,7 +27,8 @@ self.blocks_dict = {
             "emerald_ore": 4,
             "iron_ore": 5,
             "gold_ore": 6,
-            "diamond_ore": 7
+            "diamond_ore": 7,
+            "lava": -1
         }
 ```
 
@@ -51,11 +52,12 @@ Our agent will be rewarded for mining a variety of materials, including: diamond
 | Emerald | 3 | 13% |
 | Coal | 2 | 16% |
 | Redstone | 0.1 | 20% 
+| Lava | -5 | 20%
 
 <br> 
 
 # Results
-After training our agent, there will be 6 graphs of different resources to show how well it mined each type of ores.
+After training our agent, there will be 6 graphs of different resources to show how well it mined each type of ore.
 
 ![resources](docs/returns/returns-smallgrid/resources.png)
 
