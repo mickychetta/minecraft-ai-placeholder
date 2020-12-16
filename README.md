@@ -28,8 +28,7 @@ self.blocks_dict = {
             "iron_ore": 5,
             "gold_ore": 6,
             "diamond_ore": 7,
-            "lava": -1,
-            "flowing_lava" -1
+            "lava": -1
         }
 ```
 
@@ -53,7 +52,7 @@ Our agent will be rewarded for mining a variety of materials, including: diamond
 | Emerald | 3 | 13% |
 | Coal | 2 | 17% |
 | Redstone | 0.1 | 25% |
-| Lava | -5 | 20%
+| Lava | -5 | 10%
 
 <br> 
 
