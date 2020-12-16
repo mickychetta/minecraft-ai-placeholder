@@ -4,7 +4,7 @@
 
 ![portal](docs/images/background.jpg)
 
-Speed Miners will use Reinforcement Learning to gather as many resources in Malmo (Minecraft). The Minecraft character Steve will spawn with a diamond pickaxe to mine and gather as many coal, lapiz lazuli, redstone, emerald, iron, gold, and diamond within the map.  We will create an environment filled with Lava, Stone, Coal Ores, Redstone Ores, Emerald Ores, Iron Ores, Gold Ores, and Diamonds Ores. Steve will need to explore the map and mine different types of blocks until he is trained to mine efficiently. 
+Speed Miners will use Reinforcement Learning to gather as many resources in Malmo (Minecraft). The Minecraft character Steve will spawn with a diamond pickaxe to mine and gather as many coal, redstone, emerald, iron, gold, and diamond within the map.  We will create an environment filled with Lava, Stone, Coal Ores, Redstone Ores, Emerald Ores, Iron Ores, Gold Ores, and Diamonds Ores. Steve will need to explore the map and mine different types of blocks until he is trained to mine efficiently. 
 
 Website: https://mickychetta.github.io/speed-miners/ 
 
@@ -28,7 +28,8 @@ self.blocks_dict = {
             "iron_ore": 5,
             "gold_ore": 6,
             "diamond_ore": 7,
-            "lava": -1
+            "lava": -1,
+            "flowing_lava" -1
         }
 ```
 
@@ -46,12 +47,12 @@ Our agent will be rewarded for mining a variety of materials, including: diamond
 
 | Materials | Rewards | Density |
 | ----------- | ----------- | ----------- |
-| Diamond | 6 | 3% |
-| Gold | 5 | 6% |
+| Diamond | 6 | 2% |
+| Gold | 5 | 7% |
 | Iron | 4 | 10% |
 | Emerald | 3 | 13% |
-| Coal | 2 | 16% |
-| Redstone | 0.1 | 20% 
+| Coal | 2 | 17% |
+| Redstone | 0.1 | 25% |
 | Lava | -5 | 20%
 
 <br> 
