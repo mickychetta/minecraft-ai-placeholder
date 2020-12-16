@@ -1,4 +1,6 @@
-<div style="text-align:center"><img src="docs/images/title.png" /></div>
+<p align="center">
+  <img src="docs/images/title.png">
+</p>
 
 ![portal](docs/images/background.jpg)
 
