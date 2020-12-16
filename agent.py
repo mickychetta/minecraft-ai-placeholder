@@ -272,12 +272,6 @@ class ResourceCollector(gym.Env):
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
                 x, z)
 
-        # Web
-        for _ in range(int(self.max_episode_steps * 0.05)):
-            x = randint(-self.size, self.size)
-            z = randint(-self.size, self.size)
-            xml += "<DrawBlock x='{}'  y='2' z='{}' type='web' />".format(x, z)
-
         # Air
         for _ in range(int(self.max_episode_steps * 0.09)):
             x = randint(-self.size, self.size)
