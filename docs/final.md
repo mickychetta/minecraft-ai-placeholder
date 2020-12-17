@@ -47,6 +47,7 @@ Our agent will be rewarded for mining a variety of materials, including: diamond
 | Emerald | 3 | 13% |
 | Coal | 2 | 17% |
 | Redstone | 0.1 | 25% |
+| Lava | -5 | 10% |
 
 <br>
 
