@@ -143,11 +143,10 @@ class ResourceCollector(gym.Env):
         # Get Action
         command = self.action_dict[action]
         # allow if there is a block we want to mine in the ground in front of the agent (y=1)
-        allow_break_action = self.obs[0, int(
-            self.obs_size/2)-1, int(self.obs_size/2)] > 0
+        allow_break_action = self.obs[0, int(self.obs_size/2)-1, int(self.obs_size/2)] > 0 or self.obs[1, int(self.obs_size/2)-1, int(self.obs_size/2)] > 0
         if command != 'attack 1' or allow_break_action:
             self.agent_host.sendCommand(command)
-            time.sleep(.1)
+            time.sleep(.3)
             self.episode_step += 1
             self.episode_end = time.time()
 
@@ -158,7 +157,11 @@ class ResourceCollector(gym.Env):
             done = True
             time.sleep(2)
         # Done is also true if lava is stepped into
-        elif (self.obs[0, int(self.obs_size/2)-1, int(self.obs_size/2)] == -1 and (command == 'move 1' or command == 'jumpmove 1')):
+        elif ((self.obs[0, int(self.obs_size/2)-1, int(self.obs_size/2)] == -1 or self.obs[1, int(self.obs_size/2)-1, int(self.obs_size/2)] == -1) and (command == 'move 1' or command == 'jumpmove 1')):
+            done = True
+            time.sleep(2)
+        # Done is true if lava is in the square the agent is currently in (or under)
+        elif (self.obs[1, int(self.obs_size/2), int(self.obs_size/2)] == -1 or self.obs[0, int(self.obs_size/2), int(self.obs_size/2)] == -1):
             done = True
             time.sleep(2)
 
@@ -219,8 +222,8 @@ class ResourceCollector(gym.Env):
 
         # Lava
         for _ in range(int(self.max_global_steps * 0.007)):
-            x = randint(-self.size, self.size)
-            z = randint(-self.size, self.size)
+            x = randint(-self.size+2, self.size-2)
+            z = randint(-self.size+2, self.size-2)
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
                 x-1, z+1)
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
@@ -235,8 +238,8 @@ class ResourceCollector(gym.Env):
                 x-1, z-1)
 
         for _ in range(int(self.max_global_steps * 0.005)):
-            x = randint(-self.size, self.size)
-            z = randint(-self.size, self.size)
+            x = randint(-self.size+2, self.size-2)
+            z = randint(-self.size+2, self.size-2)
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
                 x-1, z+1)
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
@@ -245,8 +248,8 @@ class ResourceCollector(gym.Env):
                 x+1, z+1)
 
         for _ in range(int(self.max_global_steps * 0.005)):
-            x = randint(-self.size, self.size)
-            z = randint(-self.size, self.size)
+            x = randint(-self.size+2, self.size-2)
+            z = randint(-self.size+2, self.size-2)
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
                 x, z+1)
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
@@ -261,8 +264,8 @@ class ResourceCollector(gym.Env):
                 x, z)
 
         for _ in range(int(self.max_global_steps * 0.01)):
-            x = randint(-self.size, self.size)
-            z = randint(-self.size, self.size)
+            x = randint(-self.size+2, self.size-2)
+            z = randint(-self.size+2, self.size-2)
             xml += "<DrawBlock x='{}'  y='1' z='{}' type='lava' />".format(
                 x, z)
 
@@ -306,14 +309,10 @@ class ResourceCollector(gym.Env):
             "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='air'/>".format(-self.size, self.size, -self.size, self.size) + \
             "<DrawCuboid x1='{}' x2='{}' y1='1' y2='1' z1='{}' z2='{}' type='stone'/>".format(-self.size, self.size, -self.size, self.size) + \
             "<DrawCuboid x1='{}' x2='{}' y1='0' y2='-5' z1='{}' z2='{}' type='bedrock'/>".format(-self.size, self.size, -self.size, self.size) + \
-            "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, self.size, -self.size-1, -self.size-1) + \
-            "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, self.size, self.size, self.size) + \
-            "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, -self.size-1, -self.size-1, self.size) + \
-            "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='stone'/>".format(self.size, self.size, -self.size-1, self.size) + \
-            "<DrawCuboid x1='{}' x2='{}' y1='3' y2='6' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, self.size, -self.size-1, -self.size-1) + \
-            "<DrawCuboid x1='{}' x2='{}' y1='3' y2='6' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, self.size, self.size, self.size) + \
-            "<DrawCuboid x1='{}' x2='{}' y1='3' y2='6' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, -self.size-1, -self.size-1, self.size) + \
-            "<DrawCuboid x1='{}' x2='{}' y1='3' y2='6' z1='{}' z2='{}' type='stone'/>".format(self.size, self.size, -self.size-1, self.size) + \
+            "<DrawCuboid x1='{}' x2='{}' y1='2' y2='6' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, self.size, -self.size-1, -self.size-1) + \
+            "<DrawCuboid x1='{}' x2='{}' y1='2' y2='6' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, self.size, self.size, self.size) + \
+            "<DrawCuboid x1='{}' x2='{}' y1='2' y2='6' z1='{}' z2='{}' type='stone'/>".format(-self.size-1, -self.size-1, -self.size-1, self.size) + \
+            "<DrawCuboid x1='{}' x2='{}' y1='2' y2='6' z1='{}' z2='{}' type='stone'/>".format(self.size, self.size, -self.size-1, self.size) + \
             xml + \
             '''<DrawBlock x='0'  y='2' z='0' type='air' />
                                 <DrawBlock x='0'  y='1' z='0' type='stone' />
