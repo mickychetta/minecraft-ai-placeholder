@@ -36,7 +36,7 @@ self.blocks_dict = {
 
 <br>
 
-![ores](docs/images/ores.jpg)
+![ores](docs/images/ores.png)
 
 <br>
 
