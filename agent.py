@@ -499,11 +499,7 @@ class ResourceCollector(gym.Env):
         axs[2][1].set_title('Redstone')
 
         for ax in axs.flat:
-            ax.set(xlabel='Steps', ylabel='Amt Mined Per Episode')
-
-        # Hide x labels and tick labels for top plots and y ticks for right plots.
-        for ax in axs.flat:
-            ax.label_outer()
+            ax.set(xlabel='Steps', ylabel='Mined Per Episode')
 
         plt.tight_layout()
 
