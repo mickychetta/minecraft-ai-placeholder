@@ -77,5 +77,28 @@ Our agent will be rewarded for mining a variety of materials, including: diamond
 For our terminal states, we have decided to go with a timed approach rather than a step based approach. We set a threshold of 30 seconds for our agent to efficiently collect resources. Additionally, if the agent dies by touching lava, then the mission will end as well.
 
 ## Evaluation
+### Evaluation Setup
+The graphs and images discussed in the following sections will analyze the extent to which we solved the problem, while also comparing the results from using the PPO training algorithm against those of the DQN training algorithm.
+
+### Quantitative Evaluation
+In order to clearly see the improvements in our agent's performance, our program generates multiple types of graphs. Firstly, we will look at the returns graph, depicting the episodic reward rate in relation to the number of training steps taken. The left graph is the output from the PPO agent. There is an obvious increase in the accumulated reward per episode as training continues, up until around 40,000 steps where the improvement begins to plateau at an average of 30 reward points. DQN DISCUSS HERE. 
+
+PIX HERE
+
+Additionally, our program outputs graph trends for each resource that has a positive reward. Overall across each resource, there is a general upward trend that begins to plateau around 40,000 steps, much like the reward graph trend. This tells us that our agent learned that it should be mining ores, versus just walking/jumping around. Notably, the redstone graph does not show any clear negative or positive trend. Since redstone is the least valued resource out of all of them, this graph result can mean that the agent learned to prioritize higher valued ores but without completely deprioritizing redstone since there is still value in mining them. DQN DISCUSS HERE
+
+PIX HERE
+
+The last graph we will be looking at is the death rate graph. During an episode, the agent may die if it steps into lava or if it is in a hole that lava can flow into. The below graph results in an illustration of how frequently a death occurs as the agent trains. From the graph, we can see that the agent dies relatively frequently in the beginning of training. The death rate decreases as the agent learns and the general trend plateaus at around 0.2 after about 35,000 steps. This shows us that the agent was not able to completely avoid lava despite the negative reward associated with touching lava.
+
+### Qualitative Evaluation
+For our qualitative evaluation, we will be analyzing our agent's performance based on observation on a number of tasks, the first of which is the agent's ability to prioritize mining higher valued ores.
+
+In the beginning of training, the agent aimlessly wanders around and obviously does not know that it should be mining ores. In instances where there are ores right next to him—even high valued ores, the agent would walk away from them which makes it clear that the agent does not know to mine in those circumstances. After training, we are able to tell that the agent learned to prioritize ores such as diamond and gold. When the agent has multiple different ores in its observation space, it will head towards the higher valued ores first. Even though redstone is the most densely populated in the environment, the agent noticeably ignores many of them in favor of the other ores. The video more clearly demonstrates this idea.
+
+In addition, since we also have rails in our environment, the agent would need to attack twice in order to mine an ore that is under a rail. We were also able to observe our agent executing consecutive attacks to reach the ore. 
+
+The next task to observe is the agent's ability to avoid lava. THe agent at the beginning of training will often step into lava since the actions taken are more random. After training we can see that the agent has learned to avoid moving forward when there is a block of lava in front of him. Additionally, the agent seems to have learned to avoid lava that is going to flow towards him. In these instances, we can see that the agent is able to evade the lava by moving away from it and out of the hole. The video also more clearly illustrates the agent performing this action.
+
 
 ## References
