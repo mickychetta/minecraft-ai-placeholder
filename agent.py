@@ -74,6 +74,8 @@ class ResourceCollector(gym.Env):
             "iron_ore": [0],
             "gold_ore": [0]
         }
+        self.deaths = []
+        self.death_occurred = False
         self.steps = []
         self.episode_start = time.time()
         self.episode_end = time.time()
@@ -109,6 +111,8 @@ class ResourceCollector(gym.Env):
         self.returns.append(self.episode_return)
         current_step = self.steps[-1] if len(self.steps) > 0 else 0
         self.steps.append(current_step + self.episode_step)
+        self.deaths.append(1 if self.death_occurred else 0)
+        self.death_occurred = False
         print("Starting episode", len(self.steps))
         self.episode_return = 0
         self.episode_step = 0
@@ -120,6 +124,7 @@ class ResourceCollector(gym.Env):
                 len(self.returns) % self.log_frequency == 0:
             self.log_returns()
             self.log_resources_collected()
+            self.log_deaths()
 
         # Get Observation
         self.obs = self.get_observation(world_state)
@@ -158,10 +163,12 @@ class ResourceCollector(gym.Env):
             time.sleep(2)
         # Done is also true if lava is stepped into
         elif ((self.obs[0, int(self.obs_size/2)-1, int(self.obs_size/2)] == -1 or self.obs[1, int(self.obs_size/2)-1, int(self.obs_size/2)] == -1) and (command == 'move 1' or command == 'jumpmove 1')):
+            self.death_occurred = True
             done = True
             time.sleep(2)
         # Done is true if lava is in the square the agent is currently in (or under)
         elif (self.obs[1, int(self.obs_size/2), int(self.obs_size/2)] == -1 or self.obs[0, int(self.obs_size/2), int(self.obs_size/2)] == -1):
+            self.death_occurred = True
             done = True
             time.sleep(2)
 
@@ -503,6 +510,19 @@ class ResourceCollector(gym.Env):
         plt.tight_layout()
 
         plt.savefig('resources.png')
+
+    def log_deaths(self):
+        """
+        Log the current death rate as a graph and text file
+        """
+        box = np.ones(self.log_frequency) / self.log_frequency
+        deaths_smooth = np.convolve(self.deaths, box, mode='same')
+        plt.clf()
+        plt.plot(self.steps, deaths_smooth)
+        plt.title('Agent Death Rate')
+        plt.ylabel('Death Rate')
+        plt.xlabel('Steps')
+        plt.savefig('deaths.png')
 
 
 if __name__ == '__main__':
