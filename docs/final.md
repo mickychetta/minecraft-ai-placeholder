@@ -79,3 +79,7 @@ For our terminal states, we have decided to go with a timed approach rather than
 ## Evaluation
 
 ## References
+
+- https://microsoft.github.io/malmo/0.14.0/Schemas/Types.html
+- https://microsoft.github.io/malmo/0.14.0/Schemas/MissionHandlers.html
+- https://docs.ray.io/en/master/rllib.html
