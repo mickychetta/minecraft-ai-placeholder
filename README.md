@@ -13,7 +13,16 @@ Website: https://mickychetta.github.io/speed-miners/
 # AI/ML Algorithm
 We are taking a reinforcement learning approach using rllib for our resource gatherer. The specific algorithm we are using is the Proximal Policy Optimization (PPO), which is a model-free reinforcement learning method. PPO uses stochastic gradient descent and a clipped surrogate objective function as part of the loss function to prevent overly large updates to the policy. The clip function includes a hyperparameter, epsilon, that defines the maximum amount of change that can be applied to the policy. Below is the loss function used for PPO:
 
+### PPO
 <img src="https://spinningup.openai.com/en/latest/_images/math/99621d5bcaccd056d6ca3aeb48a27bf8cc0e640c.svg" alt="loss function" width="650">
+
+<br>
+
+We are utilizing Deep Q-Learning algorithm to compare the training behavior to the PPO agent:
+
+### DQN
+<img src="https://cdn.analyticsvidhya.com/wp-content/uploads/2019/04/1_lTVHyzT3d26Bd_znaKaylQ.png" alt="loss function" width="650">
+<img src="https://cdn.analyticsvidhya.com/wp-content/uploads/2019/04/Screenshot-2019-04-16-at-5.46.01-PM.png" alt="loss function" width="650">
 
 <br>
 

@@ -13,10 +13,6 @@ Speed Miners will use Reinforcement Learning to gather as many resources in Malm
 | - Grid of Map|
 <br>
 
-![ores](./images/ores.jpg)
-
-
-
 ## AI/ML Algorithm
 Speed Miners will use reinforcement learning to determine how good an action is at a particular state. It will determine how good the blocks are to be mined and the placement of blocks.
 
@@ -27,3 +23,24 @@ There are a few core functions of our AI that are required to successfully mine 
 
 ## Plan of Action
 By our status report, we hope to accomplish a few things. First, we would like to have our environment set up for our agent to be able to collect resources in. Similar to assignment 2, we know how to easily set diamond ore and lava; adding other materials should be relatively easy. Secondly (and ideally), having a simple working agent that can navigate the environment would be good to have. These two things combined would mean a working resource gatherer. To achieve these tasks, we have set up a weekly meeting time of Mondays at 8 PM to work on these tasks.
+
+### Actions
+Our agent's actions will consist of discrete movements, including turning left, turning right, moving forward, jumping, and attacking. This will be represented by our action dictionary.
+
+### Rewards
+Our agent will be rewarded for mining a variety of materials, including: diamond, gold, iron, emerald, coal, lapis lazuli, redstone. Higher valued ores will be more scarce within our grid.
+
+
+| Materials | Rewards | Density |
+| ----------- | ----------- | ----------- |
+| Diamond | 6 | 3% |
+| Gold | 5 | 6% |
+| Iron | 4 | 10% |
+| Emerald | 3 | 13% |
+| Coal | 2 | 16% |
+| Lapis Lazuli | 0.1 | 20% |
+| Redstone | 0.1 | 20% |
+
+<br>
+
+![ores](./images/ores.png)
