@@ -102,3 +102,7 @@ The next task to observe is the agent's ability to avoid lava. THe agent at the 
 
 
 ## References
+
+- https://microsoft.github.io/malmo/0.14.0/Schemas/Types.html
+- https://microsoft.github.io/malmo/0.14.0/Schemas/MissionHandlers.html
+- https://docs.ray.io/en/master/rllib.html
