@@ -5,7 +5,7 @@ title: Final Report
 
 ## Video
 
-<iframe width="560" height="315" src="https://youtu.be/DiP6g_6h6k0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/DiP6g_6h6k0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ## Project Summary
 Our goals for our project have largely remained the same since our status report. Our main goal is for our Minecraft agent to gather resources as efficiently as possible within a certain time frame. These resources are a set of ores, which will be later defined in our approach section. Our agent is placed into a simulated cave environment with these resources and obstacles, such as lava and rails. The video above provides a clearer idea of what this environment looks like.
