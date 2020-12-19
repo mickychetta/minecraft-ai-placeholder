@@ -127,7 +127,7 @@ In the beginning of training, the agent aimlessly wanders around and obviously d
 
 In addition, since we also have rails in our environment, the agent would need to attack twice in order to mine an ore that is under a rail. We were also able to observe our agent executing consecutive attacks to reach the ore. 
 
-The next task to observe is the agent's ability to avoid lava. THe agent at the beginning of training will often step into lava since the actions taken are more random. After training we can see that the agent has learned to avoid moving forward when there is a block of lava in front of him. Additionally, the agent seems to have learned to avoid lava that is going to flow towards him. In these instances, we can see that the agent is able to evade the lava by moving away from it and out of the hole. The video also more clearly illustrates the agent performing this action.
+The next task to observe is the agent's ability to avoid lava. The agent at the beginning of training will often step into lava since the actions taken are more random. After training we can see that the agent has learned to avoid moving forward when there is a block of lava in front of him. Additionally, the agent seems to have learned to avoid lava that is going to flow towards him. In these instances, we can see that the agent is able to evade the lava by moving away from it and out of the hole. The video also more clearly illustrates the agent performing this action.
 
 
 ## References
