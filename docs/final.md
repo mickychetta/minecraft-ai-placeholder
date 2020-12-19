@@ -79,24 +79,44 @@ For our terminal states, we have decided to go with a timed approach rather than
 The graphs and images discussed in the following sections will analyze the extent to which we solved the problem, while also comparing the results from using the PPO training algorithm against those of the DQN training algorithm.
 
 ### Quantitative Evaluation
-In order to clearly see the improvements in our agent's performance, our program generates multiple types of graphs. Firstly, we will look at the returns graph, depicting the episodic reward rate in relation to the number of training steps taken. The top graph is the output from the PPO agent. There is an obvious increase in the accumulated reward per episode as training continues, up until around 40,000 steps where the improvement begins to plateau at an average of 30 reward points. In the bottom DQN graph, there is no clear trend that can be evaluated from the trained data. The graph shows major fluctuations throughout the 60,000 steps. Unlike PPO, we cannot see a clear increasing trend in our DQN graph. The agent is able to receive a maximum reward return of 48 in 8000 steps compared to our PPO graph which received that amount of reward at approximately 80,000 steps. The advantage of DQN is that the agent is able to learn quickly but a disadvantage is that it will not achieve our sufficient desired behavior. In our case, fast learning is not a priority but rather efficient and consistent learning which is why we decided to use the PPO agent.
+In order to clearly see the improvements in our agent's performance, our program generates multiple types of graphs. Firstly, we will look at the returns graph, depicting the episodic reward rate in relation to the number of training steps taken. The top graph is the output from the PPO agent. There is an obvious increase in the accumulated reward per episode as training continues, up until around 40,000 steps where the improvement begins to plateau at an average of 30 reward points. In the bottom DQN graph, there is no clear trend that can be evaluated from the trained data. The graph shows major fluctuations throughout the 60,000 steps. Unlike PPO, we cannot see a clear increasing trend in our DQN graph. The agent is able to receive a maximum reward return of 48 in 8000 steps compared to our PPO graph which received that amount of reward at approximately 80,000 steps. The advantage of DQN is that the agent is able to learn quickly but a disadvantage is that it will not achieve our sufficient desired behavior. In our case, fast learning is not a priority but rather efficient and consistent learning which is why we decided to use the PPO agent. 
+
+We also tested our PPO agent with a slight modification to its behaviors. We removed an `allow_break_action` boolean that allows our agent to determine whether or not a resource is "breakable" (whether or not it is an ore). We remove this and add negative rewards for mining stone and gravel to see how differently our agent would learn and what trends may show from a run like this. In the bottom graph, our agent performs very similar to our original PPO agent, and it still outperforms the DQN agent in the long run. 
 
 #### PPO
-![ppo](./returns/returns-ppo-noallowbreakaction/returns.png)
+![ppo](./returns/returrns-ppo-withdeaths/returns.png)
 
 #### DQN
-![dqn](./returns/dqn/returns.png)
+![dqn](./returns/returns-dqn/returns.png)
+
+#### PPO without allow_break_action
+![ppo-2](./returns/returns-ppo-noallowbreakaction/returns.png)
 
 Additionally, our program outputs graph trends for each resource that has a positive reward. In our PPO resources graph, there is a general upward trend across each resource that begins to plateau around 40,000 steps, much like the reward graph trend. We can infer that the agent learns that it should be mining ores, versus just walking/jumping around. Notably, the redstone graph does not show any clear negative or positive trend. Since redstone is the least valued resource out of all of them, this graph result can mean that the agent learned to prioritize higher valued ores but without completely deprioritizing redstone since there is still value in mining them. In the DQN resources graph, the metrics shows that it is able to mine more resources in each type of ore. Similar to the rewards return evaluation, it is able to learn fast compared to the PPO agent but is not consistent in achieving the maximum amount of rewards. There is no clear pattern using the DQN agent which creates a random behavior in our training agent. Utilizing the PPO agent, we can see a stable increase in the rewards mine which gives a clear behavior that the agent is learning.
 
+Again, we include our PPO agent without `allow_break_action`. Again, it seems to perform similarly to the original PPO agent, though it seems as if it performs very slightly worse across the board. It also seems to outperform the DQN agent in the long run; this is reflective of the conclusions drawn from the returns graphs above. 
+
 #### PPO
-![ppo](./returns/returns-ppo-noallowbreakaction/resources.png)
+![ppo](./returns/returrns-ppo-withdeaths/resources.png)
 
 #### DQN
-![dqn](./returns/dqn/dqn.png)
+![dqn](./returns/returns-dqn/resources.png)
 
+#### PPO without allow_break_action
+![ppo-2](./returns/returns-ppo-noallowbreakaction/resources.png)
 
 The last graph we will be looking at is the death rate graph. During an episode, the agent may die if it steps into lava or if it is in a hole that lava can flow into. The below graph results in an illustration of how frequently a death occurs as the agent trains. From the graph, we can see that the agent dies relatively frequently in the beginning of training. The death rate decreases as the agent learns and the general trend plateaus at around 0.2 after about 35,000 steps. This shows us that the agent was not able to completely avoid lava despite the negative reward associated with touching lava.
+
+DQN seems to outperform both PPO agents in terms of death here. This is interesting to see as a death is attributed to lava, which would mean the DQN agent should have collected less negative rewards than both PPO agents. However, as we have seen from the first set of graphs, our DQN agent was outperformed by both PPO agents in terms of reward.
+
+#### PPO
+![ppo](./returns/returrns-ppo-withdeaths/deaths.png)
+
+#### DQN
+![dqn](./returns/returns-dqn/deaths.png)
+
+#### PPO without allow_break_action
+![ppo-2](./returns/returns-ppo-noallowbreakaction/deaths.png)
 
 ### Qualitative Evaluation
 For our qualitative evaluation, we will be analyzing our agent's performance based on observation on a number of tasks, the first of which is the agent's ability to prioritize mining higher valued ores.
