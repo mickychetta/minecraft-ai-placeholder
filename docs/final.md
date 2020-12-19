@@ -27,8 +27,6 @@ The new approach we decided on was to penalize our agent for falling into lava, 
 <img src="https://cdn.analyticsvidhya.com/wp-content/uploads/2019/04/Screenshot-2019-04-16-at-5.46.01-PM.png" alt="loss function" width="650">
 
 
-<br>
-
 
 ### Observations
 Our observations are given to us within the `ObservationsFromGrid` tag in the `get_mission_xml()` function and the `get_observation()` function. Our observations are given to us in the form of a multi dimensional numpy array. Our observation grid represents the 2 x 5 x 5 area surrounding the agent. The observation space that we feed to the trainer is made to differentiate between the different types of ores, as well as blocks we want to avoid like lava. We use these numerical values to represent the different blocks in the observation space:
@@ -81,13 +79,22 @@ For our terminal states, we have decided to go with a timed approach rather than
 The graphs and images discussed in the following sections will analyze the extent to which we solved the problem, while also comparing the results from using the PPO training algorithm against those of the DQN training algorithm.
 
 ### Quantitative Evaluation
-In order to clearly see the improvements in our agent's performance, our program generates multiple types of graphs. Firstly, we will look at the returns graph, depicting the episodic reward rate in relation to the number of training steps taken. The left graph is the output from the PPO agent. There is an obvious increase in the accumulated reward per episode as training continues, up until around 40,000 steps where the improvement begins to plateau at an average of 30 reward points. DQN DISCUSS HERE. 
+In order to clearly see the improvements in our agent's performance, our program generates multiple types of graphs. Firstly, we will look at the returns graph, depicting the episodic reward rate in relation to the number of training steps taken. The top graph is the output from the PPO agent. There is an obvious increase in the accumulated reward per episode as training continues, up until around 40,000 steps where the improvement begins to plateau at an average of 30 reward points. In the bottom DQN graph, there is no clear trend that can be evaluated from the trained data. The graph shows major fluctuations throughout the 60,000 steps. Unlike PPO, we cannot see a clear increasing trend in our DQN graph. The agent is able to receive a maximum reward return of 48 in 8000 steps compared to our PPO graph which received that amount of reward at approximately 80,000 steps. The advantage of DQN is that the agent is able to learn quickly but a disadvantage is that it will not achieve our sufficient desired behavior. In our case, fast learning is not a priority but rather efficient and consistent learning which is why we decided to use the PPO agent.
 
-PIX HERE
+#### PPO
+![ppo](./returns/returns-ppo-noallowbreakaction/returns.png)
 
-Additionally, our program outputs graph trends for each resource that has a positive reward. Overall across each resource, there is a general upward trend that begins to plateau around 40,000 steps, much like the reward graph trend. This tells us that our agent learned that it should be mining ores, versus just walking/jumping around. Notably, the redstone graph does not show any clear negative or positive trend. Since redstone is the least valued resource out of all of them, this graph result can mean that the agent learned to prioritize higher valued ores but without completely deprioritizing redstone since there is still value in mining them. DQN DISCUSS HERE
+#### DQN
+![dqn](./returns/dqn/returns.png)
 
-PIX HERE
+Additionally, our program outputs graph trends for each resource that has a positive reward. In our PPO resources graph, there is a general upward trend across each resource that begins to plateau around 40,000 steps, much like the reward graph trend. We can infer that the agent learns that it should be mining ores, versus just walking/jumping around. Notably, the redstone graph does not show any clear negative or positive trend. Since redstone is the least valued resource out of all of them, this graph result can mean that the agent learned to prioritize higher valued ores but without completely deprioritizing redstone since there is still value in mining them. In the DQN resources graph, the metrics shows that it is able to mine more resources in each type of ore. Similar to the rewards return evaluation, it is able to learn fast compared to the PPO agent but is not consistent in achieving the maximum amount of rewards. There is no clear pattern using the DQN agent which creates a random behavior in our training agent. Utilizing the PPO agent, we can see a stable increase in the rewards mine which gives a clear behavior that the agent is learning.
+
+#### PPO
+![ppo](./returns/returns-ppo-noallowbreakaction/resources.png)
+
+#### DQN
+![dqn](./returns/dqn/dqn.png)
+
 
 The last graph we will be looking at is the death rate graph. During an episode, the agent may die if it steps into lava or if it is in a hole that lava can flow into. The below graph results in an illustration of how frequently a death occurs as the agent trains. From the graph, we can see that the agent dies relatively frequently in the beginning of training. The death rate decreases as the agent learns and the general trend plateaus at around 0.2 after about 35,000 steps. This shows us that the agent was not able to completely avoid lava despite the negative reward associated with touching lava.
 
@@ -103,6 +110,15 @@ The next task to observe is the agent's ability to avoid lava. THe agent at the 
 
 ## References
 
-- https://microsoft.github.io/malmo/0.14.0/Schemas/Types.html
-- https://microsoft.github.io/malmo/0.14.0/Schemas/MissionHandlers.html
-- https://docs.ray.io/en/master/rllib.html
+* https://microsoft.github.io/malmo/0.14.0/Schemas/Types.html
+* https://microsoft.github.io/malmo/0.14.0/Schemas/MissionHandlers.html
+* https://docs.ray.io/en/master/rllib.html
+* Rllib : https://docs.ray.io/en/latest/rllib.html
+* OpenAI on PPO: https://spinningup.openai.com/en/latest/algorithms/ppo.html
+* Numpy
+* Matplotlib
+* Stackoverflow
+* Malmo XML documentation
+* Markdown styling
+* Campuswire
+* Github
